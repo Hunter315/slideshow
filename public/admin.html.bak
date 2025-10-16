@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Photos - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .auth-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="password"] {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .primary:hover {
+            background: #5568d3;
+        }
+
+        .danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .danger:hover {
+            background: #dc2626;
+        }
+
+        .refresh-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .refresh-btn:hover {
+            background: #059669;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: #f9fafb;
+            padding: 15px 20px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #111827;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .photo-info {
+            padding: 15px;
+        }
+
+        .photo-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 10px;
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .photo-actions button {
+            flex: 1;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        #content {
+            display: none;
+        }
+
+        .logout-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #4b5563;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+
+            .photo-card img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div id="authContainer">
+            <h1>🔐 Admin Login</h1>
+            <div class="auth-container">
+                <div class="auth-form">
+                    <input type="password" id="apiKeyInput" placeholder="Enter Admin API Key">
+                    <button class="primary" onclick="login()">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="headerContent" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h1>📸 Party Photos - Admin Panel</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Total Photos</div>
+                    <div class="stat-value" id="totalPhotos">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Latest Upload</div>
+                    <div class="stat-value" id="latestUpload" style="font-size: 1rem;">N/A</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="message" id="message"></div>
+
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadPhotos()">🔄 Refresh</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading photos...</p>
+        </div>
+
+        <div id="photoGrid" class="grid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>No Photos Yet</h3>
+            <p>Photos uploaded by guests will appear here</p>
+        </div>
+    </div>
+
+    <div class="modal" id="modal" onclick="closeModal()">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <img id="modalImage" src="" alt="Full size photo">
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let apiKey = localStorage.getItem('adminApiKey') || '';
+
+        function login() {
+            const input = document.getElementById('apiKeyInput');
+            apiKey = input.value.trim();
+
+            if (!apiKey) {
+                showMessage('Please enter an API key', 'error');
+                return;
+            }
+
+            localStorage.setItem('adminApiKey', apiKey);
+            showAdminPanel();
+            loadPhotos();
+        }
+
+        function logout() {
+            localStorage.removeItem('adminApiKey');
+            apiKey = '';
+            hideAdminPanel();
+        }
+
+        function showAdminPanel() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('headerContent').style.display = 'block';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('headerContent').style.display = 'none';
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('apiKeyInput').value = '';
+        }
+
+        async function loadPhotos() {
+            const loading = document.getElementById('loading');
+            const photoGrid = document.getElementById('photoGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            loading.style.display = 'block';
+            photoGrid.innerHTML = '';
+            emptyState.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/photos`, {
+                    headers: {
+                        'X-Api-Key': apiKey,
+                    },
+                });
+
+                if (response.status === 401) {
+                    showMessage('Invalid API key. Please login again.', 'error');
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+                const photos = data.photos || [];
+
+                loading.style.display = 'none';
+
+                if (photos.length === 0) {
+                    emptyState.style.display = 'block';
+                    document.getElementById('totalPhotos').textContent = '0';
+                    document.getElementById('latestUpload').textContent = 'N/A';
+                    return;
+                }
+
+                // Update stats
+                document.getElementById('totalPhotos').textContent = photos.length;
+                const latest = new Date(photos[0].uploadedAt);
+                document.getElementById('latestUpload').textContent = latest.toLocaleTimeString();
+
+                // Render photos
+                photos.forEach(photo => {
+                    const card = createPhotoCard(photo);
+                    photoGrid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                loading.style.display = 'none';
+                showMessage('Failed to load photos', 'error');
+            }
+        }
+
+        function createPhotoCard(photo) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+
+            const uploadDate = new Date(photo.uploadedAt);
+            const timeAgo = getTimeAgo(uploadDate);
+
+            const guestInfo = photo.guestName ? `👤 ${photo.guestName}<br>` : '';
+            const captionInfo = photo.caption ? `💬 ${photo.caption}<br>` : '';
+
+            card.innerHTML = `
+                <img src="${API_URL}${photo.url}" alt="${photo.filename}" onclick="openModal('${API_URL}${photo.url}')">
+                <div class="photo-info">
+                    <div class="photo-meta">
+                        ${guestInfo}${captionInfo}📅 ${timeAgo}<br>
+                        📁 ${formatFileSize(photo.filesize)}
+                    </div>
+                    <div class="photo-actions">
+                        <button class="danger" onclick="deletePhoto('${photo.photoId}', event)">Delete</button>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        async function deletePhoto(photoId, event) {
+            event.stopPropagation();
+
+            if (!confirm('Are you sure you want to delete this photo?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/photos/${photoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Api-Key': apiKey,
+                    },
+                });
+
+                if (response.ok) {
+                    showMessage('Photo deleted successfully', 'success');
+                    loadPhotos();
+                } else {
+                    showMessage('Failed to delete photo', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting photo:', error);
+                showMessage('Failed to delete photo', 'error');
+            }
+        }
+
+        function openModal(url) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = url;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return 'N/A';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Auto-login if API key exists
+        if (apiKey) {
+            showAdminPanel();
+            loadPhotos();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (apiKey) {
+                loadPhotos();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

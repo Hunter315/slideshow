@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎃 Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b00 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 107, 0, 0.3);
+            padding: 32px 24px;
+            box-shadow: 0 30px 90px rgba(255, 107, 0, 0.3);
+        }
+
+        .auth-title {
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 107, 0, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-family: inherit;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #ff6b00;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        input[type="password"]::placeholder {
+            color: rgba(255, 149, 0, 0.5);
+        }
+
+        button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+        }
+
+        .primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
+        }
+
+        /* Main Content */
+        #content {
+            display: none;
+        }
+
+        .header {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 107, 0, 0.3);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: rgba(255, 107, 0, 0.15);
+            color: #ff9500;
+            border: 2px solid rgba(255, 107, 0, 0.3);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 0, 0.25);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            background: rgba(255, 107, 0, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            color: rgba(255, 149, 0, 0.8);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 10px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 80px;
+        }
+
+        .photo-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid rgba(255, 107, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:active {
+            transform: scale(0.98);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .photo-info {
+            padding: 10px;
+        }
+
+        .photo-meta {
+            color: rgba(255, 149, 0, 0.9);
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .photo-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .danger:hover {
+            background: #dc2626;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ff9500;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 107, 0, 0.2);
+            border-top: 4px solid #ff6b00;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ff9500;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #ff6b00;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 95%;
+            max-height: 95%;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(255, 107, 0, 0.6);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 107, 0, 0.9);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+                padding-bottom: 70px;
+            }
+
+            .header {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .photo-card img {
+                height: 140px;
+            }
+
+            .photo-info {
+                padding: 8px;
+            }
+
+            .photo-meta {
+                font-size: 0.7rem;
+            }
+
+            .photo-actions button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="authContainer">
+        <div class="auth-container">
+            <h1 class="auth-title">🔐 Admin Login</h1>
+            <div class="auth-form">
+                <input type="password" id="apiKeyInput" placeholder="Enter Admin API Key">
+                <button class="primary" onclick="login()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="header">
+            <div class="header-top">
+                <h1>🎃 Admin Panel</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Total Photos</div>
+                    <div class="stat-value" id="totalPhotos">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Latest Upload</div>
+                    <div class="stat-value" id="latestUpload" style="font-size: 0.9rem;">N/A</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadPhotos()">🔄 Refresh</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading photos...</p>
+        </div>
+
+        <div id="photoGrid" class="grid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>No Photos Yet</h3>
+            <p>Guest photos will appear here</p>
+        </div>
+    </div>
+
+    <div class="modal" id="modal" onclick="closeModal()">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <img id="modalImage" src="" alt="Full size photo">
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let apiKey = localStorage.getItem('adminApiKey') || '';
+
+        function login() {
+            const input = document.getElementById('apiKeyInput');
+            apiKey = input.value.trim();
+
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+
+            localStorage.setItem('adminApiKey', apiKey);
+            showAdminPanel();
+            loadPhotos();
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminApiKey');
+                apiKey = '';
+                hideAdminPanel();
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('apiKeyInput').value = '';
+        }
+
+        async function loadPhotos() {
+            const loading = document.getElementById('loading');
+            const photoGrid = document.getElementById('photoGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            loading.style.display = 'block';
+            photoGrid.innerHTML = '';
+            emptyState.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/photos`, {
+                    headers: {
+                        'X-Api-Key': apiKey,
+                    },
+                });
+
+                if (response.status === 401) {
+                    showMessage('Invalid API key. Please login again.', 'error');
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+                const photos = data.photos || [];
+
+                loading.style.display = 'none';
+
+                if (photos.length === 0) {
+                    emptyState.style.display = 'block';
+                    document.getElementById('totalPhotos').textContent = '0';
+                    document.getElementById('latestUpload').textContent = 'N/A';
+                    return;
+                }
+
+                // Update stats
+                document.getElementById('totalPhotos').textContent = photos.length;
+                const latest = new Date(photos[0].uploadedAt);
+                document.getElementById('latestUpload').textContent = latest.toLocaleTimeString();
+
+                // Render photos
+                photos.forEach(photo => {
+                    const card = createPhotoCard(photo);
+                    photoGrid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                loading.style.display = 'none';
+                showMessage('Failed to load photos', 'error');
+            }
+        }
+
+        function createPhotoCard(photo) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+
+            const uploadDate = new Date(photo.uploadedAt);
+            const timeAgo = getTimeAgo(uploadDate);
+
+            const guestInfo = photo.guestName ? `👤 ${photo.guestName}<br>` : '';
+            const captionInfo = photo.caption ? `💬 ${photo.caption.substring(0, 30)}${photo.caption.length > 30 ? '...' : ''}<br>` : '';
+
+            card.innerHTML = `
+                <img src="${API_URL}${photo.url}" alt="${photo.filename}" onclick="openModal('${API_URL}${photo.url}', event)">
+                <div class="photo-info">
+                    <div class="photo-meta">
+                        ${guestInfo}${captionInfo}📅 ${timeAgo}<br>
+                        📁 ${formatFileSize(photo.filesize)}
+                    </div>
+                    <div class="photo-actions">
+                        <button class="danger" onclick="deletePhoto('${photo.photoId}', event)">Delete</button>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        async function deletePhoto(photoId, event) {
+            event.stopPropagation();
+
+            if (!confirm('Delete this photo?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/photos/${photoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Api-Key': apiKey,
+                    },
+                });
+
+                if (response.ok) {
+                    showMessage('Photo deleted successfully', 'success');
+                    loadPhotos();
+                } else {
+                    showMessage('Failed to delete photo', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting photo:', error);
+                showMessage('Failed to delete photo', 'error');
+            }
+        }
+
+        function openModal(url, event) {
+            event.stopPropagation();
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = url;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return 'N/A';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Auto-login if API key exists
+        if (apiKey) {
+            showAdminPanel();
+            loadPhotos();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (apiKey && document.getElementById('content').style.display === 'block') {
+                loadPhotos();
+            }
+        }, 30000);
+
+        // Pull to refresh on mobile
+        let touchStart = 0;
+        let touchEnd = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStart = e.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEnd = e.changedTouches[0].screenY;
+            if (touchStart - touchEnd < -150 && window.scrollY === 0) {
+                loadPhotos();
+            }
+        });
+    </script>
+</body>
+</html>
