@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 # Configuration
-CAMERA_INDEX = 0
+CAMERA_INDEX = 0  # Use video0 with V4L2 backend
 KNOWN_FACES_PATH = "known_faces.pkl"
 API_URL = "http://localhost:3000/api"
 RECOGNITION_THRESHOLD = 0.6  # Lower = stricter matching
@@ -150,7 +150,8 @@ class FaceRecognitionService:
     def run_camera(self):
         """Main loop: capture frames and recognize faces"""
         print("🎥 Starting camera...")
-        video_capture = cv2.VideoCapture(CAMERA_INDEX)
+        # Use V4L2 backend explicitly (avoids GStreamer issues on Pi)
+        video_capture = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_V4L2)
 
         # Check if camera opened successfully
         if not video_capture.isOpened():

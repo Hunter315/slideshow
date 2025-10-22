@@ -9,7 +9,7 @@ import face_recognition
 import pickle
 from pathlib import Path
 
-CAMERA_INDEX = 0
+CAMERA_INDEX = 0  # Use video0 with V4L2 backend
 KNOWN_FACES_PATH = "known_faces.pkl"
 
 def test_camera():
@@ -19,7 +19,8 @@ def test_camera():
 
     # Test 1: Can we open the camera?
     print("\n1️⃣ Testing camera connection...")
-    video_capture = cv2.VideoCapture(CAMERA_INDEX)
+    # Use V4L2 backend explicitly (avoids GStreamer issues on Pi)
+    video_capture = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_V4L2)
 
     if not video_capture.isOpened():
         print("❌ FAILED: Cannot open camera")
