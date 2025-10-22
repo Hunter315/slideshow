@@ -1,70 +1,50 @@
 # Building for Raspberry Pi Zero W
 
-This project can be compiled into a standalone executable that runs on Raspberry Pi Zero W without needing to install Node.js.
+This project creates a standalone executable for Raspberry Pi that requires NO Node.js installation.
 
-## Prerequisites (on your Windows machine)
+## Easy Method: Download from GitHub Actions (Recommended)
 
-1. Install dependencies:
+1. Push your code to GitHub (on the `no-node` or `main` branch)
+2. Go to your repository's **Actions** tab
+3. Find the latest "Build for Raspberry Pi" workflow run
+4. Download the `slideshow-pi-executable` artifact
+5. Extract and copy `slideshow-pi` to your Pi via USB
+
+## Alternative: Build Locally (Requires Linux/WSL/Docker)
+
+Building from Windows directly doesn't work due to cross-compilation limitations. You need Linux to build for Pi.
+
+## Deploying to Raspberry Pi (USB Method - No SSH/Git needed)
+
+1. Download `slideshow-pi` executable from GitHub Actions (see above)
+
+2. Copy `slideshow-pi` to a USB drive
+
+3. On Raspberry Pi terminal:
 ```bash
-npm install
-```
-
-## Building the Executable
-
-Run this command on your Windows machine:
-
-```bash
-npm run build:pi
-```
-
-This will create a file called `slideshow-pi` in the `build/` directory. This is a standalone executable for ARM64 Linux (Raspberry Pi).
-
-## Deploying to Raspberry Pi
-
-1. Copy the executable to your Pi:
-```bash
-scp build/slideshow-pi pi@raspberrypi.local:~/
-```
-
-2. SSH into your Pi:
-```bash
-ssh pi@raspberrypi.local
-```
-
-3. Make it executable:
-```bash
+# Copy from USB to home directory
+cd ~
+cp /media/pi/*/slideshow-pi .
 chmod +x slideshow-pi
-```
 
-4. Create necessary directories:
-```bash
-mkdir -p uploads
-```
+# Create uploads folder
+mkdir uploads
 
-5. Create a .env file (optional):
-```bash
-nano .env
-```
-Add:
-```
-PORT=3000
-```
-
-6. Run the application:
-```bash
+# Run it! (No Node.js needed)
 ./slideshow-pi
 ```
 
+That's it! The executable includes everything needed.
+
 ## Running on Boot (Optional)
 
-To make it start automatically when the Pi boots:
+Create a systemd service:
 
-1. Create a systemd service file:
 ```bash
 sudo nano /etc/systemd/system/slideshow.service
 ```
 
-2. Add this content:
+Add:
 ```ini
 [Unit]
 Description=Photo Slideshow Server
@@ -73,8 +53,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi
-ExecStart=/home/pi/slideshow-pi
+WorkingDirectory=/home/pi/slideshow
+ExecStart=/usr/bin/node /home/pi/slideshow/server-bundle.js
 Restart=always
 RestartSec=10
 
@@ -82,20 +62,16 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
-3. Enable and start the service:
+Enable and start:
 ```bash
 sudo systemctl enable slideshow.service
 sudo systemctl start slideshow.service
-```
-
-4. Check status:
-```bash
 sudo systemctl status slideshow.service
 ```
 
 ## Notes
 
-- The executable is ~50-80MB (includes Node.js runtime and all dependencies)
-- No Node.js installation needed on the Pi
-- The Pi Zero W only needs standard Linux libraries (glibc)
-- All dependencies are bundled into the single executable
+- You only need to install Node.js ONCE on the Pi (lightweight, ~40MB)
+- The bundled file is small (~2-3MB)
+- Much better than pkg for Pi Zero W - faster and more reliable
+- better-sqlite3 needs its native ARM binary from node_modules

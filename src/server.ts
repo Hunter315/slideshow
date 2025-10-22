@@ -5,8 +5,6 @@ import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import {
   insertPhoto,
   getActivePhotos,
@@ -15,10 +13,7 @@ import {
   getAllPhotosForAdmin,
   PhotoInsert,
   Photo
-} from './database.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+} from './database';
 
 dotenv.config();
 
@@ -176,6 +171,28 @@ app.delete('/api/admin/photos/:photoId', requireAdmin, (req: Request, res: Respo
   } catch (error) {
     console.error('Error deleting photo:', error);
     res.status(500).json({ error: 'Failed to delete photo' });
+  }
+});
+
+// Face Recognition: Receive recognition events from Python service
+app.post('/api/recognition', (req: Request, res: Response) => {
+  try {
+    const { name, timestamp } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    console.log(`🎯 Face recognized: ${name} at ${new Date(timestamp * 1000).toLocaleTimeString()}`);
+
+    // TODO: Store recognition events in database
+    // TODO: Trigger personalized slideshow
+    // TODO: Send WebSocket event to connected clients
+
+    res.json({ success: true, message: `Recognized ${name}` });
+  } catch (error) {
+    console.error('Error processing recognition:', error);
+    res.status(500).json({ error: 'Failed to process recognition' });
   }
 });
 

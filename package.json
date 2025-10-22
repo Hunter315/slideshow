@@ -6,14 +6,7 @@
     "start": "tsx src/server.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "build:pi": "npm run build && pkg dist/server.js --targets node18-linux-arm64 --output slideshow-pi"
-  },
-  "bin": "./dist/server.js",
-  "pkg": {
-    "assets": [
-      "node_modules/better-sqlite3/**/*"
-    ],
-    "outputPath": "build"
+    "build:pi": "npm run build && npx -y pkg@5.8.1 dist/server.js --target node18-linuxstatic-armv7 --output build/slideshow-pi --public --public-packages \"*\" --no-bytecode --compress GZip"
   },
   "keywords": ["photo", "slideshow", "raspberry-pi", "party"],
   "author": "",
@@ -32,7 +25,14 @@
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.10.6",
     "typescript": "^5.3.3",
-    "tsx": "^4.7.0",
-    "pkg": "^5.8.1"
+    "tsx": "^4.7.0"
+  },
+  "caxa": {
+    "exclude": [
+      "src",
+      "*.md",
+      ".git",
+      "tsconfig.json"
+    ]
   }
 }

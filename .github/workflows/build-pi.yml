@@ -1,0 +1,37 @@
+name: Build for Raspberry Pi
+
+on:
+  push:
+    branches: [ main, no-node ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Install pkg
+      run: npm install -g pkg
+
+    - name: Build standalone executable for Pi
+      run: pkg dist/server.js --targets node18-linux-arm64 --output slideshow-pi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: slideshow-pi-executable
+        path: slideshow-pi
+        retention-days: 90

@@ -1,8 +1,43 @@
-node_modules
-dist
-*.db
-*.db-journal
-uploads
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment
 .env
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Uploads
+uploads/
+
+# Face recognition
+known_faces.pkl
+faces/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
 *.log
