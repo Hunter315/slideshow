@@ -151,9 +151,23 @@ class FaceRecognitionService:
         """Main loop: capture frames and recognize faces"""
         print("🎥 Starting camera...")
         video_capture = cv2.VideoCapture(CAMERA_INDEX)
+
+        # Check if camera opened successfully
+        if not video_capture.isOpened():
+            print("❌ ERROR: Could not open camera")
+            print("   Make sure a camera is connected")
+            print("   Camera index:", CAMERA_INDEX)
+            print("   Try:")
+            print("   - Plug in USB camera")
+            print("   - Check camera permissions")
+            print("   - Try different CAMERA_INDEX (0, 1, 2...)")
+            return
+
         video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         video_capture.set(cv2.CAP_PROP_FPS, 30)
+
+        print("✅ Camera opened successfully")
 
         frame_count = 0
         reload_check_interval = 30  # Check for new faces every 30 frames
