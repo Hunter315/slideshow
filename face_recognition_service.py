@@ -27,6 +27,7 @@ class FaceRecognitionService:
         self.known_face_names = []
         self.load_known_faces()
         self.last_recognized = {}  # Track last recognition time per person
+        self.last_reload_time = time.time()  # Track when we last reloaded faces
 
     def load_known_faces(self):
         """Load known faces from disk"""
@@ -35,9 +36,25 @@ class FaceRecognitionService:
                 data = pickle.load(f)
                 self.known_face_encodings = data['encodings']
                 self.known_face_names = data['names']
-                print(f"Loaded {len(self.known_face_names)} known faces")
+                unique_names = list(set(self.known_face_names))
+                print(f"📚 Loaded {len(self.known_face_names)} face samples for {len(unique_names)} people")
+                if unique_names:
+                    print(f"   People: {', '.join(sorted(unique_names))}")
         else:
-            print("No known faces found. Use enroll_face() to add people.")
+            print("⚠️  No known faces found yet. Waiting for guests to upload photos...")
+
+    def reload_faces_if_updated(self):
+        """Check if known_faces.pkl has been updated and reload if needed"""
+        if Path(KNOWN_FACES_PATH).exists():
+            file_mtime = Path(KNOWN_FACES_PATH).stat().st_mtime
+            if file_mtime > self.last_reload_time:
+                print("\n🔄 New faces detected, reloading...")
+                old_count = len(set(self.known_face_names))
+                self.load_known_faces()
+                new_count = len(set(self.known_face_names))
+                if new_count > old_count:
+                    print(f"✅ Learned {new_count - old_count} new person/people!")
+                self.last_reload_time = time.time()
 
     def save_known_faces(self):
         """Save known faces to disk"""
@@ -132,13 +149,14 @@ class FaceRecognitionService:
 
     def run_camera(self):
         """Main loop: capture frames and recognize faces"""
-        print("Starting camera...")
+        print("🎥 Starting camera...")
         video_capture = cv2.VideoCapture(CAMERA_INDEX)
         video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         video_capture.set(cv2.CAP_PROP_FPS, 30)
 
         frame_count = 0
+        reload_check_interval = 30  # Check for new faces every 30 frames
 
         try:
             while True:
@@ -148,6 +166,10 @@ class FaceRecognitionService:
                     break
 
                 frame_count += 1
+
+                # Periodically check for new enrolled faces
+                if frame_count % (FRAME_SKIP * reload_check_interval) == 0:
+                    self.reload_faces_if_updated()
 
                 # Skip frames for performance
                 if frame_count % FRAME_SKIP != 0:

@@ -20,7 +20,9 @@ db.exec(`
     caption TEXT,
     status TEXT DEFAULT 'active',
     uploaded_at INTEGER NOT NULL,
-    deleted_at INTEGER
+    deleted_at INTEGER,
+    processed_at INTEGER,
+    recognized_faces TEXT
   );
 
   CREATE INDEX IF NOT EXISTS idx_status ON photos(status);
@@ -39,6 +41,8 @@ export interface Photo {
   status: 'active' | 'deleted';
   uploaded_at: number;
   deleted_at?: number;
+  processed_at?: number;
+  recognized_faces?: string;
 }
 
 export interface PhotoInsert {
@@ -78,6 +82,12 @@ export const getAllPhotosForAdmin = db.prepare(`
   SELECT * FROM photos
   WHERE status = 'active'
   ORDER BY uploaded_at DESC
+`);
+
+export const updatePhotoProcessing = db.prepare(`
+  UPDATE photos
+  SET processed_at = ?, recognized_faces = ?
+  WHERE photo_id = ?
 `);
 
 export default db;

@@ -1,41 +1,65 @@
 #!/bin/bash
-# Startup script for Party Slideshow + Face Recognition
-# Runs both Node.js server and Python face recognition service
+# Startup script for Party Slideshow + Auto Face Learning + Live Recognition
+# Runs Node.js server, auto-enrollment, and live camera recognition
 
 cd /home/pi/slideshow
 
-echo "🎉 Starting Party Slideshow System..."
+echo "="
+echo "="
+echo "🎉 Party Slideshow with Face Recognition"
+echo "="
+echo "="
 
 # Start Node.js server in background
-echo "📸 Starting photo server..."
+echo "📸 Starting photo upload server..."
 node dist/server.js &
 NODE_PID=$!
-echo "   Node.js server started (PID: $NODE_PID)"
+echo "   Server running (PID: $NODE_PID)"
 
 # Wait for server to initialize
-sleep 3
+sleep 2
 
-# Start face recognition
-echo "🎯 Starting face recognition..."
+# Start auto-enrollment service (learns faces from uploaded photos)
+echo "🎭 Starting auto-enrollment (learns from uploads)..."
+python3 auto_enroll.py &
+ENROLL_PID=$!
+echo "   Auto-enrollment running (PID: $ENROLL_PID)"
+
+sleep 1
+
+# Start live camera face recognition
+echo "🎥 Starting live camera recognition..."
 python3 face_recognition_service.py &
-PYTHON_PID=$!
-echo "   Face recognition started (PID: $PYTHON_PID)"
+CAMERA_PID=$!
+echo "   Camera recognition running (PID: $CAMERA_PID)"
 
 echo ""
+echo "="
 echo "✅ All services running!"
-echo "📱 Share this URL with guests: http://$(hostname -I | awk '{print $1}'):3000"
+echo "="
+echo "📱 Guest upload: http://$(hostname -I | awk '{print $1}'):3000"
+echo "🎬 Slideshow:    http://$(hostname -I | awk '{print $1}'):3000/slideshow"
+echo "🔐 Admin panel:  http://$(hostname -I | awk '{print $1}'):3000/admin"
+echo ""
+echo "How it works:"
+echo "1. Guests upload photos with their names"
+echo "2. System automatically learns their faces"
+echo "3. Camera recognizes them when they walk by"
+echo "="
 echo ""
 echo "Press Ctrl+C to stop all services"
+echo ""
 
-# Function to kill both processes on exit
+# Function to kill all processes on exit
 cleanup() {
     echo ""
-    echo "🛑 Stopping services..."
-    kill $NODE_PID $PYTHON_PID 2>/dev/null
+    echo "🛑 Stopping all services..."
+    kill $NODE_PID $ENROLL_PID $CAMERA_PID 2>/dev/null
+    echo "✅ All services stopped"
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM
 
-# Wait for both processes
+# Wait for all processes
 wait

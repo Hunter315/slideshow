@@ -11,6 +11,7 @@ import {
   getPhotoById,
   softDeletePhoto,
   getAllPhotosForAdmin,
+  updatePhotoProcessing,
   PhotoInsert,
   Photo
 } from './database';
@@ -138,16 +139,29 @@ app.get('/api/admin/photos', requireAdmin, (req: Request, res: Response) => {
   try {
     const photos = getAllPhotosForAdmin.all() as Photo[];
 
-    const photoData = photos.map(photo => ({
-      photoId: photo.photo_id,
-      filename: photo.filename,
-      url: `/uploads/${photo.filepath}`,
-      uploadedAt: photo.uploaded_at,
-      filesize: photo.filesize,
-      guestName: photo.guest_name,
-      caption: photo.caption,
-      status: photo.status
-    }));
+    const photoData = photos.map(photo => {
+      let recognizedFaces = [];
+      try {
+        if (photo.recognized_faces) {
+          recognizedFaces = JSON.parse(photo.recognized_faces);
+        }
+      } catch (e) {
+        // If parsing fails, leave as empty array
+      }
+
+      return {
+        photoId: photo.photo_id,
+        filename: photo.filename,
+        url: `/uploads/${photo.filepath}`,
+        uploadedAt: photo.uploaded_at,
+        filesize: photo.filesize,
+        guestName: photo.guest_name,
+        caption: photo.caption,
+        status: photo.status,
+        processedAt: photo.processed_at,
+        recognizedFaces: recognizedFaces
+      };
+    });
 
     res.json({ photos: photoData });
   } catch (error) {
@@ -193,6 +207,43 @@ app.post('/api/recognition', (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error processing recognition:', error);
     res.status(500).json({ error: 'Failed to process recognition' });
+  }
+});
+
+// Photo Processing: Receive processing results from Python service
+app.post('/api/photo-processed', (req: Request, res: Response) => {
+  try {
+    const { photo_id, results } = req.body;
+
+    if (!photo_id) {
+      return res.status(400).json({ error: 'photo_id is required' });
+    }
+
+    // Store the results as JSON string in database
+    const recognizedFacesJson = JSON.stringify(results.detected_faces || []);
+    const processedAt = Date.now();
+
+    updatePhotoProcessing.run(processedAt, recognizedFacesJson, photo_id);
+
+    // Log recognized faces
+    if (results.detected_faces && results.detected_faces.length > 0) {
+      const recognizedNames = results.detected_faces
+        .map((face: any) => face.name)
+        .filter((name: string) => name !== 'Unknown');
+
+      if (recognizedNames.length > 0) {
+        console.log(`✅ Photo ${photo_id}: Recognized ${recognizedNames.join(', ')}`);
+      } else {
+        console.log(`📸 Photo ${photo_id}: Face(s) detected but not recognized`);
+      }
+    } else {
+      console.log(`📸 Photo ${photo_id}: No faces detected`);
+    }
+
+    res.json({ success: true, message: 'Processing results stored' });
+  } catch (error) {
+    console.error('Error storing processing results:', error);
+    res.status(500).json({ error: 'Failed to store processing results' });
   }
 });
 
