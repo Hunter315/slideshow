@@ -2,7 +2,9 @@
 # Startup script for Party Slideshow + Auto Face Learning + Live Recognition
 # Runs Node.js server, auto-enrollment, and live camera recognition
 
-cd /home/pi/slideshow
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
 echo "="
 echo "="
@@ -37,9 +39,22 @@ echo ""
 echo "="
 echo "✅ All services running!"
 echo "="
-echo "📱 Guest upload: http://$(hostname -I | awk '{print $1}'):3000"
-echo "🎬 Slideshow:    http://$(hostname -I | awk '{print $1}'):3000/slideshow"
-echo "🔐 Admin panel:  http://$(hostname -I | awk '{print $1}'):3000/admin"
+
+# Get IP address (works on both Linux and macOS)
+if command -v hostname &> /dev/null && hostname -I &> /dev/null; then
+    # Linux (Raspberry Pi)
+    PI_IP=$(hostname -I | awk '{print $1}')
+elif command -v ipconfig &> /dev/null; then
+    # Windows
+    PI_IP="localhost"
+else
+    # Fallback
+    PI_IP="localhost"
+fi
+
+echo "📱 Guest upload: http://${PI_IP}:3000"
+echo "🎬 Slideshow:    http://${PI_IP}:3000/slideshow"
+echo "🔐 Admin panel:  http://${PI_IP}:3000/admin"
 echo ""
 echo "How it works:"
 echo "1. Guests upload photos with their names"
