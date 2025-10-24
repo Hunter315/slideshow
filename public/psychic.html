@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystical Readings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a0033 0%, #0d001a 50%, #1a0033 100%);
+            color: #e6d5ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated starry background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        /* Mystical glow effect */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(138, 43, 226, 0.5),
+                            0 0 40px rgba(138, 43, 226, 0.3),
+                            0 0 60px rgba(138, 43, 226, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(138, 43, 226, 0.8),
+                            0 0 60px rgba(138, 43, 226, 0.5),
+                            0 0 90px rgba(138, 43, 226, 0.3);
+            }
+        }
+
+        .container {
+            text-align: center;
+            max-width: 900px;
+            width: 90%;
+            padding: 60px 40px;
+            background: rgba(20, 0, 40, 0.9);
+            border-radius: 20px;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            animation: glow 3s infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #c77dff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            font-weight: normal;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #e0aaff;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        /* Spooky Eyes */
+        .eyes-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            gap: 80px;
+        }
+
+        .eye {
+            width: 120px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.6),
+                        inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes lookAround {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .pupil {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 35% 35%, #ff006e, #7209b7, #000);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: lookAround 4s infinite ease-in-out;
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 0, 40, 0.9);
+            animation: blink 6s infinite;
+            transform-origin: top;
+        }
+
+        .stare-prompt {
+            font-size: 2.2em;
+            margin: 40px 0 30px 0;
+            color: #c77dff;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+            letter-spacing: 2px;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            height: 30px;
+            background: rgba(138, 43, 226, 0.2);
+            border-radius: 15px;
+            margin: 30px auto;
+            overflow: hidden;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+        }
+
+        @keyframes fillProgress {
+            from { width: 0%; }
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7209b7, #c77dff, #ff006e);
+            border-radius: 15px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(199, 125, 255, 0.6);
+        }
+
+        .progress-text {
+            font-size: 1.2em;
+            color: #e0aaff;
+            margin-top: 15px;
+        }
+
+        .reading-text {
+            font-size: 1.8em;
+            line-height: 1.9;
+            margin: 40px 0;
+            padding: 40px;
+            background: rgba(138, 43, 226, 0.15);
+            border-radius: 15px;
+            border: 2px solid rgba(138, 43, 226, 0.4);
+            color: #e6d5ff;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 10px rgba(230, 213, 255, 0.3);
+        }
+
+        .cursed-message {
+            color: #ff006e;
+            font-size: 1.6em;
+            text-shadow: 0 0 15px rgba(255, 0, 110, 0.6);
+            margin: 40px 0;
+            line-height: 1.8;
+        }
+
+        .cursed-message a {
+            color: #ff6d00;
+            text-decoration: none;
+            border-bottom: 2px solid #ff6d00;
+            transition: all 0.3s ease;
+        }
+
+        .cursed-message a:hover {
+            color: #ffaa00;
+            border-bottom-color: #ffaa00;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(138, 43, 226, 0.3);
+            border-top: 6px solid #c77dff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .symbol {
+            font-size: 2em;
+            opacity: 0.4;
+            display: inline-block;
+            margin: 0 15px;
+        }
+
+        .idle-message {
+            font-size: 1.8em;
+            color: #e0aaff;
+            opacity: 0.7;
+            margin: 60px 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <h1>🔮 Mystical Readings 🔮</h1>
+        <p class="subtitle"><span class="symbol">✦</span>Peer into the void<span class="symbol">✦</span></p>
+
+        <!-- IDLE STATE: No one detected -->
+        <div id="idleSection">
+            <p class="idle-message pulsing">Awaiting a seeker of truth...</p>
+        </div>
+
+        <!-- STARING STATE: Recognized person, waiting for stare duration -->
+        <div id="staringSection" class="hidden">
+            <div class="eyes-container">
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+            </div>
+
+            <p class="stare-prompt fade-in">
+                <span id="starePersonName"></span>,<br>
+                Stare into my eyes to see your future
+            </p>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p class="progress-text" id="progressText">Gazing...</p>
+        </div>
+
+        <!-- CURSED STATE: Unknown person -->
+        <div id="cursedSection" class="hidden">
+            <div class="eyes-container">
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+            </div>
+            <p class="cursed-message fade-in">
+                ⚠️ The spirits do not know you ⚠️<br><br>
+                You must first take a cursed picture<br>
+                to unlock the mystical realm<br><br>
+                <a href="/">Enter the Portal</a>
+            </p>
+        </div>
+
+        <!-- LOADING STATE: Generating reading -->
+        <div id="loadingSection" class="hidden">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px; font-size: 1.5em;">The spirits are consulting the cosmos...</p>
+        </div>
+
+        <!-- READING STATE: Display the reading -->
+        <div id="readingSection" class="hidden">
+            <div class="reading-text fade-in">
+                <p id="readingText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create starry background
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Elements
+        const idleSection = document.getElementById('idleSection');
+        const staringSection = document.getElementById('staringSection');
+        const cursedSection = document.getElementById('cursedSection');
+        const loadingSection = document.getElementById('loadingSection');
+        const readingSection = document.getElementById('readingSection');
+        const starePersonNameEl = document.getElementById('starePersonName');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const readingTextEl = document.getElementById('readingText');
+
+        // State
+        let currentPersonName = null;
+        let currentState = 'idle'; // idle, staring, cursed, loading, reading
+        let pollInterval = null;
+        let readingTriggered = false;
+        const STARE_THRESHOLD = 4000; // 4 seconds in milliseconds
+
+        function hideAllSections() {
+            idleSection.classList.add('hidden');
+            staringSection.classList.add('hidden');
+            cursedSection.classList.add('hidden');
+            loadingSection.classList.add('hidden');
+            readingSection.classList.add('hidden');
+        }
+
+        function showIdleState() {
+            hideAllSections();
+            idleSection.classList.remove('hidden');
+            currentState = 'idle';
+            currentPersonName = null;
+            readingTriggered = false;
+        }
+
+        function showStaringState(personName, stareDuration) {
+            if (currentState !== 'staring') {
+                hideAllSections();
+                staringSection.classList.remove('hidden');
+                currentState = 'staring';
+                starePersonNameEl.textContent = personName;
+            }
+
+            // Update progress bar
+            const progress = Math.min((stareDuration / STARE_THRESHOLD) * 100, 100);
+            progressBar.style.width = progress + '%';
+
+            const secondsRemaining = Math.max(0, Math.ceil((STARE_THRESHOLD - stareDuration) / 1000));
+            if (secondsRemaining > 0) {
+                progressText.textContent = `Keep staring... ${secondsRemaining}s`;
+            } else {
+                progressText.textContent = 'The spirits see you...';
+            }
+
+            // Auto-trigger reading when threshold reached
+            if (stareDuration >= STARE_THRESHOLD && !readingTriggered) {
+                readingTriggered = true;
+                triggerReading(personName);
+            }
+        }
+
+        function showCursedState() {
+            if (currentState !== 'cursed') {
+                hideAllSections();
+                cursedSection.classList.remove('hidden');
+                currentState = 'cursed';
+            }
+        }
+
+        async function triggerReading(personName) {
+            hideAllSections();
+            loadingSection.classList.remove('hidden');
+            currentState = 'loading';
+
+            try {
+                const response = await fetch('/api/readings/request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ personName })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show reading
+                    hideAllSections();
+                    readingTextEl.textContent = data.readingText;
+                    readingSection.classList.remove('hidden');
+                    currentState = 'reading';
+
+                    // Reset to idle after 20 seconds
+                    setTimeout(() => {
+                        showIdleState();
+                    }, 20000);
+                } else {
+                    throw new Error(data.error || 'Failed to get reading');
+                }
+            } catch (error) {
+                console.error('Error getting reading:', error);
+                // On error, show idle after 3 seconds
+                setTimeout(() => {
+                    showIdleState();
+                }, 3000);
+            }
+        }
+
+        // Poll for face recognition
+        async function checkForRecognition() {
+            // Don't poll while loading or showing reading
+            if (currentState === 'loading' || currentState === 'reading') {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/recognition/current');
+                const data = await response.json();
+
+                if (data.recognized && data.personName !== 'Unknown') {
+                    // Recognized person - show staring state
+                    currentPersonName = data.personName;
+                    showStaringState(data.personName, data.stareDuration || 0);
+                } else if (data.recognized && data.personName === 'Unknown') {
+                    // Unknown person - show cursed message
+                    currentPersonName = 'Unknown';
+                    showCursedState();
+                } else {
+                    // No one detected
+                    if (currentState !== 'idle') {
+                        showIdleState();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking recognition:', error);
+            }
+        }
+
+        // Start polling every 500ms for smooth progress bar updates
+        pollInterval = setInterval(checkForRecognition, 500);
+        checkForRecognition(); // Check immediately on load
+    </script>
+</body>
+</html>

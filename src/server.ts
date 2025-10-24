@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
+import Anthropic from '@anthropic-ai/sdk';
 import {
   insertPhoto,
   getActivePhotos,
@@ -13,7 +14,16 @@ import {
   getAllPhotosForAdmin,
   updatePhotoProcessing,
   PhotoInsert,
-  Photo
+  Photo,
+  insertRecognitionEvent,
+  getMostRecentRecognition,
+  getRecentRecognitionsByPerson,
+  RecognitionEvent,
+  RecognitionEventInsert,
+  insertReading,
+  getReadingById,
+  Reading,
+  ReadingInsert
 } from './database';
 
 dotenv.config();
@@ -21,6 +31,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'change-me-please';
+
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY || '',
+});
 
 // Create uploads directory
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
@@ -199,14 +214,134 @@ app.post('/api/recognition', (req: Request, res: Response) => {
 
     console.log(`🎯 Face recognized: ${name} at ${new Date(timestamp * 1000).toLocaleTimeString()}`);
 
-    // TODO: Store recognition events in database
-    // TODO: Trigger personalized slideshow
-    // TODO: Send WebSocket event to connected clients
+    // Store recognition event in database
+    const eventData: RecognitionEventInsert = {
+      person_name: name,
+      timestamp: timestamp,
+      created_at: Date.now()
+    };
+    insertRecognitionEvent.run(eventData);
+
+    // TODO: Send WebSocket event to connected clients for real-time updates
 
     res.json({ success: true, message: `Recognized ${name}` });
   } catch (error) {
     console.error('Error processing recognition:', error);
     res.status(500).json({ error: 'Failed to process recognition' });
+  }
+});
+
+// Get most recent recognized person with stare duration
+app.get('/api/recognition/current', (req: Request, res: Response) => {
+  try {
+    const recentRecognition = getMostRecentRecognition.get() as RecognitionEvent | undefined;
+
+    if (!recentRecognition) {
+      return res.json({ recognized: false, stareDuration: 0 });
+    }
+
+    // Only return recognitions from the last 10 seconds (if no new events, person left)
+    const tenSecondsAgo = Date.now() - 10000;
+    if (recentRecognition.created_at < tenSecondsAgo) {
+      return res.json({ recognized: false, stareDuration: 0 });
+    }
+
+    // Calculate continuous presence duration
+    // Get all recognition events for this person in the last 10 seconds
+    const recentEvents = getRecentRecognitionsByPerson.all(
+      recentRecognition.person_name,
+      tenSecondsAgo
+    ) as RecognitionEvent[];
+
+    if (recentEvents.length === 0) {
+      return res.json({ recognized: false, stareDuration: 0 });
+    }
+
+    // Calculate duration: time from oldest recent event to now
+    const oldestEvent = recentEvents[recentEvents.length - 1];
+    const stareDurationMs = Date.now() - oldestEvent.created_at;
+
+    res.json({
+      recognized: true,
+      personName: recentRecognition.person_name,
+      timestamp: recentRecognition.timestamp,
+      stareDuration: stareDurationMs, // in milliseconds
+      eventCount: recentEvents.length
+    });
+  } catch (error) {
+    console.error('Error fetching current recognition:', error);
+    res.status(500).json({ error: 'Failed to fetch recognition' });
+  }
+});
+
+// Request a psychic reading
+app.post('/api/readings/request', async (req: Request, res: Response) => {
+  try {
+    const { personName } = req.body;
+
+    if (!personName) {
+      return res.status(400).json({ error: 'personName is required' });
+    }
+
+    console.log(`🔮 Generating psychic reading for ${personName}...`);
+
+    // Generate reading using Claude
+    const message = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: `You are a mystical fortune teller at a Halloween party. Give ${personName} a creative, entertaining, and slightly spooky psychic reading. The reading should be personalized with their name, mysterious but fun, and appropriate for a party atmosphere. Keep it to 3-4 sentences. Make it feel authentic and engaging, with references to cosmic energies, fate, or mysterious forces. Do not use any formatting or special characters - just plain text.`
+      }]
+    });
+
+    const readingText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Store reading in database
+    const readingId = randomUUID();
+    const readingData: ReadingInsert = {
+      reading_id: readingId,
+      person_name: personName,
+      reading_type: 'psychic',
+      reading_text: readingText,
+      created_at: Date.now()
+    };
+    insertReading.run(readingData);
+
+    console.log(`✨ Generated reading for ${personName}`);
+
+    res.json({
+      readingId,
+      personName,
+      readingText,
+      createdAt: readingData.created_at
+    });
+  } catch (error) {
+    console.error('Error generating reading:', error);
+    res.status(500).json({ error: 'Failed to generate reading' });
+  }
+});
+
+// Get a specific reading by ID
+app.get('/api/readings/:readingId', (req: Request, res: Response) => {
+  try {
+    const { readingId } = req.params;
+    const reading = getReadingById.get(readingId) as Reading | undefined;
+
+    if (!reading) {
+      return res.status(404).json({ error: 'Reading not found' });
+    }
+
+    res.json({
+      readingId: reading.reading_id,
+      personName: reading.person_name,
+      readingType: reading.reading_type,
+      readingText: reading.reading_text,
+      createdAt: reading.created_at
+    });
+  } catch (error) {
+    console.error('Error fetching reading:', error);
+    res.status(500).json({ error: 'Failed to fetch reading' });
   }
 });
 
@@ -260,6 +395,10 @@ app.get('/slideshow', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'slideshow.html'));
 });
 
+app.get('/psychic', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'psychic.html'));
+});
+
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Server error:', err);
@@ -274,6 +413,7 @@ app.listen(PORT, () => {
 📸 Guest Upload:    http://localhost:${PORT}
 🔐 Admin Panel:     http://localhost:${PORT}/admin
 🖼️  Slideshow:       http://localhost:${PORT}/slideshow
+🔮 Psychic Reading: http://localhost:${PORT}/psychic
 
 🔑 Admin API Key: ${ADMIN_API_KEY}
 
