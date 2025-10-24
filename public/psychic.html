@@ -90,60 +90,47 @@
             opacity: 0.9;
         }
 
-        /* Spooky Eyes */
-        .eyes-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 40px 0;
-            gap: 80px;
-        }
-
-        .eye {
-            width: 120px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
+        /* Crystal Ball */
+        .crystal-ball {
+            width: 200px;
+            height: 200px;
+            margin: 40px auto;
             border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(199, 125, 255, 0.3),
+                rgba(138, 43, 226, 0.2),
+                rgba(114, 9, 183, 0.4));
+            box-shadow:
+                0 0 40px rgba(138, 43, 226, 0.6),
+                inset 0 0 60px rgba(138, 43, 226, 0.3);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.6),
-                        inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        @keyframes lookAround {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        @keyframes swirl {
+            0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+            50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
+            100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
         }
 
-        .pupil {
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 35% 35%, #ff006e, #7209b7, #000);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: lookAround 4s infinite ease-in-out;
-            box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
-        }
-
-        @keyframes blink {
-            0%, 90%, 100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
-        }
-
-        .eye::after {
+        .crystal-ball::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(20, 0, 40, 0.9);
-            animation: blink 6s infinite;
-            transform-origin: top;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle,
+                rgba(199, 125, 255, 0.4) 0%,
+                transparent 70%);
+            animation: swirl 8s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .crystal-ball-container {
+            animation: float 4s infinite ease-in-out;
         }
 
         .stare-prompt {
@@ -154,34 +141,55 @@
             letter-spacing: 2px;
         }
 
-        /* Progress bar */
-        .progress-container {
+        /* Mystical energy rings */
+        .energy-rings {
             width: 100%;
-            max-width: 500px;
-            height: 30px;
-            background: rgba(138, 43, 226, 0.2);
-            border-radius: 15px;
+            max-width: 400px;
+            height: 80px;
             margin: 30px auto;
-            overflow: hidden;
-            border: 2px solid rgba(138, 43, 226, 0.5);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        @keyframes fillProgress {
-            from { width: 0%; }
+        @keyframes expandRing {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 0.8;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
         }
 
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #7209b7, #c77dff, #ff006e);
-            border-radius: 15px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 20px rgba(199, 125, 255, 0.6);
+        .ring {
+            position: absolute;
+            border: 2px solid #c77dff;
+            border-radius: 50%;
+            animation: expandRing 2s ease-out infinite;
         }
 
-        .progress-text {
-            font-size: 1.2em;
+        .ring:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .ring:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        .ring:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+
+        .energy-text {
+            font-size: 1.3em;
             color: #e0aaff;
-            margin-top: 15px;
+            margin-top: 20px;
+            letter-spacing: 3px;
         }
 
         .reading-text {
@@ -230,20 +238,52 @@
             animation: fadeIn 1s ease-out;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Mystical particles */
+        @keyframes mysticalParticle {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
         }
 
-        .spinner {
-            display: inline-block;
-            width: 60px;
-            height: 60px;
-            border: 6px solid rgba(138, 43, 226, 0.3);
-            border-top: 6px solid #c77dff;
+        .particles {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 40px auto;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #c77dff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(199, 125, 255, 0.8);
+            animation: mysticalParticle 3s ease-out infinite;
+        }
+
+        .conjuring-text {
+            font-size: 1.6em;
+            color: #e0aaff;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .conjuring-text {
+            animation: fadeInOut 2s infinite;
         }
 
         .hidden {
@@ -288,35 +328,28 @@
 
         <!-- STARING STATE: Recognized person, waiting for stare duration -->
         <div id="staringSection" class="hidden">
-            <div class="eyes-container">
-                <div class="eye">
-                    <div class="pupil"></div>
-                </div>
-                <div class="eye">
-                    <div class="pupil"></div>
-                </div>
+            <div class="crystal-ball-container">
+                <div class="crystal-ball"></div>
             </div>
 
             <p class="stare-prompt fade-in">
-                <span id="starePersonName"></span>,<br>
-                Stare into my eyes to see your future
+                Gaze into the crystal sphere...<br>
+                <span style="font-size: 0.7em; opacity: 0.8;">The cosmos shall reveal your destiny</span>
             </p>
 
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <div class="energy-rings">
+                <div class="ring"></div>
+                <div class="ring"></div>
+                <div class="ring"></div>
+                <div class="ring"></div>
             </div>
-            <p class="progress-text" id="progressText">Gazing...</p>
+            <p class="energy-text" id="energyText">Channeling energy...</p>
         </div>
 
         <!-- CURSED STATE: Unknown person -->
         <div id="cursedSection" class="hidden">
-            <div class="eyes-container">
-                <div class="eye">
-                    <div class="pupil"></div>
-                </div>
-                <div class="eye">
-                    <div class="pupil"></div>
-                </div>
+            <div class="crystal-ball-container">
+                <div class="crystal-ball" style="background: radial-gradient(circle at 30% 30%, rgba(255, 0, 110, 0.3), rgba(114, 9, 183, 0.2), rgba(26, 0, 51, 0.6));"></div>
             </div>
             <p class="cursed-message fade-in">
                 ⚠️ The spirits do not know you ⚠️<br><br>
@@ -328,8 +361,8 @@
 
         <!-- LOADING STATE: Generating reading -->
         <div id="loadingSection" class="hidden">
-            <div class="spinner"></div>
-            <p style="margin-top: 20px; font-size: 1.5em;">The spirits are consulting the cosmos...</p>
+            <div class="particles" id="particlesContainer"></div>
+            <p class="conjuring-text">✦ Conjuring your destiny ✦</p>
         </div>
 
         <!-- READING STATE: Display the reading -->
@@ -358,10 +391,9 @@
         const cursedSection = document.getElementById('cursedSection');
         const loadingSection = document.getElementById('loadingSection');
         const readingSection = document.getElementById('readingSection');
-        const starePersonNameEl = document.getElementById('starePersonName');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
+        const energyText = document.getElementById('energyText');
         const readingTextEl = document.getElementById('readingText');
+        const particlesContainer = document.getElementById('particlesContainer');
 
         // State
         let currentPersonName = null;
@@ -391,18 +423,21 @@
                 hideAllSections();
                 staringSection.classList.remove('hidden');
                 currentState = 'staring';
-                starePersonNameEl.textContent = personName;
             }
 
-            // Update progress bar
+            // Update mystical energy text based on progress
             const progress = Math.min((stareDuration / STARE_THRESHOLD) * 100, 100);
-            progressBar.style.width = progress + '%';
 
-            const secondsRemaining = Math.max(0, Math.ceil((STARE_THRESHOLD - stareDuration) / 1000));
-            if (secondsRemaining > 0) {
-                progressText.textContent = `Keep staring... ${secondsRemaining}s`;
+            if (progress < 25) {
+                energyText.textContent = 'Your presence awakens the mystic forces...';
+            } else if (progress < 50) {
+                energyText.textContent = 'The veil between worlds grows thin...';
+            } else if (progress < 75) {
+                energyText.textContent = 'Ancient powers stir in the darkness...';
+            } else if (progress < 100) {
+                energyText.textContent = 'Your destiny crystallizes before us...';
             } else {
-                progressText.textContent = 'The spirits see you...';
+                energyText.textContent = 'The ritual is complete...';
             }
 
             // Auto-trigger reading when threshold reached
@@ -425,6 +460,16 @@
             loadingSection.classList.remove('hidden');
             currentState = 'loading';
 
+            // Create mystical particles
+            particlesContainer.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 280 + 10 + 'px';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particlesContainer.appendChild(particle);
+            }
+
             try {
                 const response = await fetch('/api/readings/request', {
                     method: 'POST',
@@ -437,7 +482,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Show reading
+                    // Show reading (name is revealed here by Claude in the reading text)
                     hideAllSections();
                     readingTextEl.textContent = data.readingText;
                     readingSection.classList.remove('hidden');
