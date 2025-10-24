@@ -193,19 +193,38 @@
         }
 
         .reading-text {
-            font-size: 1.8em;
-            line-height: 1.9;
-            margin: 40px 0;
-            padding: 40px;
+            font-size: 1.5em;
+            line-height: 1.7;
+            margin: 30px 0;
+            padding: 30px;
             background: rgba(138, 43, 226, 0.15);
             border-radius: 15px;
             border: 2px solid rgba(138, 43, 226, 0.4);
             color: #e6d5ff;
-            min-height: 200px;
+            max-height: 60vh;
+            overflow-y: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             text-shadow: 0 0 10px rgba(230, 213, 255, 0.3);
+        }
+
+        .reading-text::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reading-text::-webkit-scrollbar-track {
+            background: rgba(138, 43, 226, 0.2);
+            border-radius: 10px;
+        }
+
+        .reading-text::-webkit-scrollbar-thumb {
+            background: rgba(138, 43, 226, 0.6);
+            border-radius: 10px;
+        }
+
+        .reading-text::-webkit-scrollbar-thumb:hover {
+            background: rgba(138, 43, 226, 0.8);
         }
 
         .cursed-message {

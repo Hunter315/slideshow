@@ -131,6 +131,16 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: Date.now() });
 });
 
+// Server info for QR code generation
+app.get('/api/server-info', (req: Request, res: Response) => {
+  const uploadUrl = `http://${LOCAL_IP}:${PORT}`;
+  res.json({
+    uploadUrl,
+    ip: LOCAL_IP,
+    port: PORT
+  });
+});
+
 // Upload photo
 app.post('/api/photos', upload.single('photo'), (req: Request, res: Response) => {
   try {
@@ -328,7 +338,7 @@ app.post('/api/readings/request', async (req: Request, res: Response) => {
       max_tokens: 500,
       messages: [{
         role: 'user',
-        content: `You are a mystical fortune teller at a Halloween party. Give ${personName} a creative, entertaining, and slightly spooky psychic reading. The reading should be personalized with their name, mysterious but fun, and appropriate for a party atmosphere. Keep it to 3-4 sentences. Make it feel authentic and engaging, with references to cosmic energies, fate, or mysterious forces. Do not use any formatting or special characters - just plain text.`
+        content: `You are a goofy, theatrical fortune teller at a wild Halloween party. Give ${personName} a hilarious and over-the-top psychic reading about their night at THIS PARTY. Make predictions about funny things that will happen to them tonight - like who they'll dance with, what embarrassing thing they'll do, what drink they'll spill, or what wild memory they'll make. Start by dramatically revealing their name like you just discovered it through mystical powers. Keep it playful, silly, and party-focused (not serious life advice). 3-4 sentences max. No formatting or special characters - just plain text that sounds like a dramatic fortune teller having fun.`
       }]
     });
 
@@ -434,6 +444,10 @@ app.get('/slideshow', (req: Request, res: Response) => {
 
 app.get('/psychic', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'psychic.html'));
+});
+
+app.get('/qr', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'qr.html'));
 });
 
 // Error handling middleware
