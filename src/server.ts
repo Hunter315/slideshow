@@ -6,6 +6,7 @@ import fs from 'fs';
 import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
+import os from 'os';
 import {
   insertPhoto,
   getActivePhotos,
@@ -31,6 +32,42 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'change-me-please';
+
+// Get local IP address
+function getLocalIpAddress(): string {
+  const interfaces = os.networkInterfaces();
+
+  // Priority order: wlan0 (Pi WiFi), eth0 (Pi Ethernet), then any other
+  const priorityInterfaces = ['wlan0', 'eth0'];
+
+  // First try priority interfaces
+  for (const ifaceName of priorityInterfaces) {
+    const iface = interfaces[ifaceName];
+    if (iface) {
+      for (const addr of iface) {
+        if (addr.family === 'IPv4' && !addr.internal) {
+          return addr.address;
+        }
+      }
+    }
+  }
+
+  // Fallback: find any non-internal IPv4 address
+  for (const ifaceName in interfaces) {
+    const iface = interfaces[ifaceName];
+    if (iface) {
+      for (const addr of iface) {
+        if (addr.family === 'IPv4' && !addr.internal) {
+          return addr.address;
+        }
+      }
+    }
+  }
+
+  return 'localhost';
+}
+
+const LOCAL_IP = getLocalIpAddress();
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -407,17 +444,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Start server
 app.listen(PORT, () => {
+  const baseUrl = LOCAL_IP === 'localhost' ? 'localhost' : LOCAL_IP;
+
   console.log(`
 🎉 Party Photo Server is running!
 
-📸 Guest Upload:    http://localhost:${PORT}
-🔐 Admin Panel:     http://localhost:${PORT}/admin
-🖼️  Slideshow:       http://localhost:${PORT}/slideshow
-🔮 Psychic Reading: http://localhost:${PORT}/psychic
+📸 Guest Upload:    http://${baseUrl}:${PORT}
+🔐 Admin Panel:     http://${baseUrl}:${PORT}/admin
+🖼️  Slideshow:       http://${baseUrl}:${PORT}/slideshow
+🔮 Psychic Reading: http://${baseUrl}:${PORT}/psychic
 
 🔑 Admin API Key: ${ADMIN_API_KEY}
-
-Replace 'localhost' with your Raspberry Pi's IP address for network access.
+${LOCAL_IP !== 'localhost' ? `\n📡 Network IP detected: ${LOCAL_IP}` : '\n⚠️  No network IP detected - running on localhost only'}
   `);
 });
 
