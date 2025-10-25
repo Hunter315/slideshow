@@ -60,7 +60,7 @@ export interface Photo {
   mimetype: string;
   guest_name?: string;
   caption?: string;
-  status: 'active' | 'deleted';
+  status: 'active' | 'hidden' | 'deleted';
   uploaded_at: number;
   deleted_at?: number;
   processed_at?: number;
@@ -97,12 +97,24 @@ export const getPhotoById = db.prepare(`
 export const softDeletePhoto = db.prepare(`
   UPDATE photos
   SET status = 'deleted', deleted_at = ?
+  WHERE photo_id = ?
+`);
+
+export const hidePhoto = db.prepare(`
+  UPDATE photos
+  SET status = 'hidden'
   WHERE photo_id = ? AND status = 'active'
+`);
+
+export const restorePhoto = db.prepare(`
+  UPDATE photos
+  SET status = 'active'
+  WHERE photo_id = ? AND status = 'hidden'
 `);
 
 export const getAllPhotosForAdmin = db.prepare(`
   SELECT * FROM photos
-  WHERE status = 'active'
+  WHERE status IN ('active', 'hidden')
   ORDER BY uploaded_at DESC
 `);
 

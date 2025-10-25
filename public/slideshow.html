@@ -413,7 +413,7 @@
     <script>
       const API_URL = window.location.origin;
       let SLIDE_DURATION = 5000; // Default 5 seconds
-      const REFRESH_INTERVAL = 30000; // Check for new photos every 30 seconds
+      const REFRESH_INTERVAL = 5000; // Check for new photos every 5 seconds
 
       let photos = [];
       let currentIndex = 0;
@@ -428,25 +428,43 @@
           const data = await response.json();
           const newPhotos = data.photos || [];
 
-          if (showStatus && newPhotos.length > photos.length) {
-            // Find the new photos that were added
-            const existingIds = new Set(photos.map((p) => p.photoId));
-            const addedPhotos = newPhotos.filter(
-              (p) => !existingIds.has(p.photoId)
-            );
+          // Detect changes
+          const oldPhotoIds = new Set(photos.map((p) => p.photoId));
+          const newPhotoIds = new Set(newPhotos.map((p) => p.photoId));
 
-            // Show toast for each new photo with guest name
+          if (showStatus) {
+            // Check for added photos
+            const addedPhotos = newPhotos.filter(
+              (p) => !oldPhotoIds.has(p.photoId)
+            );
             addedPhotos.forEach((photo) => {
               const guestName = photo.guestName || "Someone";
               showStatusIndicator(`🎃 ${guestName} added a photo!`);
             });
+
+            // Check for removed photos
+            const removedCount = photos.filter(
+              (p) => !newPhotoIds.has(p.photoId)
+            ).length;
+            if (removedCount > 0) {
+              showStatusIndicator(`🪦 ${removedCount} photo${removedCount > 1 ? 's' : ''} removed`);
+            }
           }
 
           if (newPhotos.length > 0) {
+            // Check if current photo was removed
+            const currentPhotoId = photos[currentIndex]?.photoId;
+            const currentPhotoStillExists = newPhotoIds.has(currentPhotoId);
+
             photos = newPhotos;
-            if (currentIndex >= photos.length) {
-              currentIndex = 0;
+
+            // If current photo was removed, adjust index
+            if (!currentPhotoStillExists) {
+              if (currentIndex >= photos.length) {
+                currentIndex = 0;
+              }
             }
+
             displayPhotos();
           } else {
             showError(

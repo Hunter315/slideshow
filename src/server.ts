@@ -12,6 +12,8 @@ import {
   getActivePhotos,
   getPhotoById,
   softDeletePhoto,
+  hidePhoto,
+  restorePhoto,
   getAllPhotosForAdmin,
   updatePhotoProcessing,
   PhotoInsert,
@@ -232,7 +234,43 @@ app.get('/api/admin/photos', requireAdmin, (req: Request, res: Response) => {
   }
 });
 
-// Admin: Delete photo
+// Admin: Hide photo from slideshow (removable, can restore)
+app.patch('/api/admin/photos/:photoId/hide', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const { photoId } = req.params;
+
+    const result = hidePhoto.run(photoId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Photo not found or already hidden' });
+    }
+
+    res.json({ message: 'Photo hidden from slideshow' });
+  } catch (error) {
+    console.error('Error hiding photo:', error);
+    res.status(500).json({ error: 'Failed to hide photo' });
+  }
+});
+
+// Admin: Restore hidden photo to slideshow
+app.patch('/api/admin/photos/:photoId/restore', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const { photoId } = req.params;
+
+    const result = restorePhoto.run(photoId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Photo not found or not hidden' });
+    }
+
+    res.json({ message: 'Photo restored to slideshow' });
+  } catch (error) {
+    console.error('Error restoring photo:', error);
+    res.status(500).json({ error: 'Failed to restore photo' });
+  }
+});
+
+// Admin: Permanently delete photo
 app.delete('/api/admin/photos/:photoId', requireAdmin, (req: Request, res: Response) => {
   try {
     const { photoId } = req.params;
@@ -243,7 +281,7 @@ app.delete('/api/admin/photos/:photoId', requireAdmin, (req: Request, res: Respo
       return res.status(404).json({ error: 'Photo not found' });
     }
 
-    res.json({ message: 'Photo deleted successfully' });
+    res.json({ message: 'Photo permanently deleted' });
   } catch (error) {
     console.error('Error deleting photo:', error);
     res.status(500).json({ error: 'Failed to delete photo' });
