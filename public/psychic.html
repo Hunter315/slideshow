@@ -1,561 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mystical Readings</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Georgia', serif;
-            background: linear-gradient(135deg, #1a0033 0%, #0d001a 50%, #1a0033 100%);
-            color: #e6d5ff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
+      body {
+        font-family: "Georgia", serif;
+        background: linear-gradient(
+          135deg,
+          #1a0033 0%,
+          #0d001a 50%,
+          #1a0033 100%
+        );
+        color: #e6d5ff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+      }
 
-        /* Animated starry background */
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+      /* Animated starry background */
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0.3;
         }
+        50% {
+          opacity: 1;
+        }
+      }
 
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
+      .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
 
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #fff;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
+      .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: #fff;
+        border-radius: 50%;
+        animation: twinkle 3s infinite;
+      }
 
-        /* Mystical glow effect */
-        @keyframes glow {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(138, 43, 226, 0.5),
-                            0 0 40px rgba(138, 43, 226, 0.3),
-                            0 0 60px rgba(138, 43, 226, 0.1);
-            }
-            50% {
-                box-shadow: 0 0 30px rgba(138, 43, 226, 0.8),
-                            0 0 60px rgba(138, 43, 226, 0.5),
-                            0 0 90px rgba(138, 43, 226, 0.3);
-            }
+      /* Mystical glow effect */
+      @keyframes glow {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(138, 43, 226, 0.5),
+            0 0 40px rgba(138, 43, 226, 0.3), 0 0 60px rgba(138, 43, 226, 0.1);
         }
+        50% {
+          box-shadow: 0 0 30px rgba(138, 43, 226, 0.8),
+            0 0 60px rgba(138, 43, 226, 0.5), 0 0 90px rgba(138, 43, 226, 0.3);
+        }
+      }
 
-        .container {
-            text-align: center;
-            max-width: 900px;
-            width: 90%;
-            padding: 60px 40px;
-            background: rgba(20, 0, 40, 0.9);
-            border-radius: 20px;
-            border: 2px solid rgba(138, 43, 226, 0.5);
-            animation: glow 3s infinite;
-            backdrop-filter: blur(10px);
-        }
+      .container {
+        text-align: center;
+        max-width: 900px;
+        width: 90%;
+        padding: 60px 40px;
+        background: rgba(20, 0, 40, 0.9);
+        border-radius: 20px;
+        border: 2px solid rgba(138, 43, 226, 0.5);
+        animation: glow 3s infinite;
+        backdrop-filter: blur(10px);
+      }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #c77dff;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
-            font-weight: normal;
-            letter-spacing: 3px;
-        }
+      h1 {
+        font-size: 3em;
+        margin-bottom: 20px;
+        color: #c77dff;
+        text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+        font-weight: normal;
+        letter-spacing: 3px;
+      }
 
-        .subtitle {
-            font-size: 1.3em;
-            margin-bottom: 30px;
-            color: #e0aaff;
-            font-style: italic;
-            opacity: 0.9;
-        }
+      .subtitle {
+        font-size: 1.3em;
+        margin-bottom: 30px;
+        color: #e0aaff;
+        font-style: italic;
+        opacity: 0.9;
+      }
 
-        /* Crystal Ball */
-        .crystal-ball {
-            width: 200px;
-            height: 200px;
-            margin: 40px auto;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%,
-                rgba(199, 125, 255, 0.3),
-                rgba(138, 43, 226, 0.2),
-                rgba(114, 9, 183, 0.4));
-            box-shadow:
-                0 0 40px rgba(138, 43, 226, 0.6),
-                inset 0 0 60px rgba(138, 43, 226, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
+      /* Crystal Ball */
+      .crystal-ball {
+        width: 200px;
+        height: 200px;
+        margin: 40px auto;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(199, 125, 255, 0.3),
+          rgba(138, 43, 226, 0.2),
+          rgba(114, 9, 183, 0.4)
+        );
+        box-shadow: 0 0 40px rgba(138, 43, 226, 0.6),
+          inset 0 0 60px rgba(138, 43, 226, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
 
-        @keyframes swirl {
-            0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
-            50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
-            100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+      @keyframes swirl {
+        0% {
+          transform: rotate(0deg) scale(1);
+          opacity: 0.5;
         }
+        50% {
+          transform: rotate(180deg) scale(1.2);
+          opacity: 0.8;
+        }
+        100% {
+          transform: rotate(360deg) scale(1);
+          opacity: 0.5;
+        }
+      }
 
-        .crystal-ball::before {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            background: radial-gradient(circle,
-                rgba(199, 125, 255, 0.4) 0%,
-                transparent 70%);
-            animation: swirl 8s infinite ease-in-out;
-        }
+      .crystal-ball::before {
+        content: "";
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(
+          circle,
+          rgba(199, 125, 255, 0.4) 0%,
+          transparent 70%
+        );
+        animation: swirl 8s infinite ease-in-out;
+      }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
         }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
 
-        .crystal-ball-container {
-            animation: float 4s infinite ease-in-out;
-        }
+      .crystal-ball-container {
+        animation: float 4s infinite ease-in-out;
+      }
 
-        .stare-prompt {
-            font-size: 2.2em;
-            margin: 40px 0 30px 0;
-            color: #c77dff;
-            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
-            letter-spacing: 2px;
-        }
+      .stare-prompt {
+        font-size: 2.2em;
+        margin: 40px 0 30px 0;
+        color: #c77dff;
+        text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+        letter-spacing: 2px;
+      }
 
-        /* Mystical energy rings */
-        .energy-rings {
-            width: 100%;
-            max-width: 400px;
-            height: 80px;
-            margin: 30px auto;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      /* Mystical energy rings */
+      .energy-rings {
+        width: 100%;
+        max-width: 400px;
+        height: 80px;
+        margin: 30px auto;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-        @keyframes expandRing {
-            0% {
-                width: 20px;
-                height: 20px;
-                opacity: 0.8;
-            }
-            100% {
-                width: 200px;
-                height: 200px;
-                opacity: 0;
-            }
+      @keyframes expandRing {
+        0% {
+          width: 20px;
+          height: 20px;
+          opacity: 0.8;
         }
+        100% {
+          width: 200px;
+          height: 200px;
+          opacity: 0;
+        }
+      }
 
-        .ring {
-            position: absolute;
-            border: 2px solid #c77dff;
-            border-radius: 50%;
-            animation: expandRing 2s ease-out infinite;
-        }
+      .ring {
+        position: absolute;
+        border: 2px solid #c77dff;
+        border-radius: 50%;
+        animation: expandRing 2s ease-out infinite;
+      }
 
-        .ring:nth-child(2) {
-            animation-delay: 0.5s;
-        }
+      .ring:nth-child(2) {
+        animation-delay: 0.5s;
+      }
 
-        .ring:nth-child(3) {
-            animation-delay: 1s;
-        }
+      .ring:nth-child(3) {
+        animation-delay: 1s;
+      }
 
-        .ring:nth-child(4) {
-            animation-delay: 1.5s;
-        }
+      .ring:nth-child(4) {
+        animation-delay: 1.5s;
+      }
 
-        .energy-text {
-            font-size: 1.3em;
-            color: #e0aaff;
-            margin-top: 20px;
-            letter-spacing: 3px;
-        }
+      .energy-text {
+        font-size: 1.3em;
+        color: #e0aaff;
+        margin-top: 20px;
+        letter-spacing: 3px;
+      }
 
-        .reading-text {
-            font-size: 1.5em;
-            line-height: 1.7;
-            margin: 30px 0;
-            padding: 30px;
-            background: rgba(138, 43, 226, 0.15);
-            border-radius: 15px;
-            border: 2px solid rgba(138, 43, 226, 0.4);
-            color: #e6d5ff;
-            max-height: 60vh;
-            overflow-y: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 0 0 10px rgba(230, 213, 255, 0.3);
-        }
+      .reading-text {
+        font-size: 1.5em;
+        line-height: 1.7;
+        margin: 30px 0;
+        padding: 30px;
+        background: rgba(138, 43, 226, 0.15);
+        border-radius: 15px;
+        border: 2px solid rgba(138, 43, 226, 0.4);
+        color: #e6d5ff;
+        max-height: 60vh;
+        overflow-y: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-shadow: 0 0 10px rgba(230, 213, 255, 0.3);
+      }
 
-        .reading-text::-webkit-scrollbar {
-            width: 8px;
-        }
+      .reading-text::-webkit-scrollbar {
+        width: 8px;
+      }
 
-        .reading-text::-webkit-scrollbar-track {
-            background: rgba(138, 43, 226, 0.2);
-            border-radius: 10px;
-        }
+      .reading-text::-webkit-scrollbar-track {
+        background: rgba(138, 43, 226, 0.2);
+        border-radius: 10px;
+      }
 
-        .reading-text::-webkit-scrollbar-thumb {
-            background: rgba(138, 43, 226, 0.6);
-            border-radius: 10px;
-        }
+      .reading-text::-webkit-scrollbar-thumb {
+        background: rgba(138, 43, 226, 0.6);
+        border-radius: 10px;
+      }
 
-        .reading-text::-webkit-scrollbar-thumb:hover {
-            background: rgba(138, 43, 226, 0.8);
-        }
+      .reading-text::-webkit-scrollbar-thumb:hover {
+        background: rgba(138, 43, 226, 0.8);
+      }
 
-        .cursed-message {
-            color: #ff006e;
-            font-size: 1.6em;
-            text-shadow: 0 0 15px rgba(255, 0, 110, 0.6);
-            margin: 40px 0;
-            line-height: 1.8;
-        }
+      .cursed-message {
+        color: #ff006e;
+        font-size: 1.6em;
+        text-shadow: 0 0 15px rgba(255, 0, 110, 0.6);
+        margin: 40px 0;
+        line-height: 1.8;
+      }
 
-        .cursed-message a {
-            color: #ff6d00;
-            text-decoration: none;
-            border-bottom: 2px solid #ff6d00;
-            transition: all 0.3s ease;
-        }
+      .cursed-message a {
+        color: #ff6d00;
+        text-decoration: none;
+        border-bottom: 2px solid #ff6d00;
+        transition: all 0.3s ease;
+      }
 
-        .cursed-message a:hover {
-            color: #ffaa00;
-            border-bottom-color: #ffaa00;
-            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
-        }
+      .cursed-message a:hover {
+        color: #ffaa00;
+        border-bottom-color: #ffaa00;
+        text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+      }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-        .fade-in {
-            animation: fadeIn 1s ease-out;
-        }
+      .fade-in {
+        animation: fadeIn 1s ease-out;
+      }
 
-        /* Mystical particles */
-        @keyframes mysticalParticle {
-            0% {
-                transform: translateY(0) scale(0);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) scale(1);
-                opacity: 0;
-            }
+      /* Mystical particles */
+      @keyframes mysticalParticle {
+        0% {
+          transform: translateY(0) scale(0);
+          opacity: 0;
         }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100px) scale(1);
+          opacity: 0;
+        }
+      }
 
-        .particles {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            margin: 40px auto;
-        }
+      .particles {
+        position: relative;
+        width: 300px;
+        height: 200px;
+        margin: 40px auto;
+      }
 
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #c77dff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(199, 125, 255, 0.8);
-            animation: mysticalParticle 3s ease-out infinite;
-        }
+      .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #c77dff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(199, 125, 255, 0.8);
+        animation: mysticalParticle 3s ease-out infinite;
+      }
 
-        .conjuring-text {
-            font-size: 1.6em;
-            color: #e0aaff;
-            letter-spacing: 2px;
-            margin-top: 20px;
-        }
+      .conjuring-text {
+        font-size: 1.6em;
+        color: #e0aaff;
+        letter-spacing: 2px;
+        margin-top: 20px;
+      }
 
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
+      @keyframes fadeInOut {
+        0%,
+        100% {
+          opacity: 0.4;
         }
+        50% {
+          opacity: 1;
+        }
+      }
 
-        .conjuring-text {
-            animation: fadeInOut 2s infinite;
-        }
+      .conjuring-text {
+        animation: fadeInOut 2s infinite;
+      }
 
-        .hidden {
-            display: none !important;
-        }
+      .hidden {
+        display: none !important;
+      }
 
-        .symbol {
-            font-size: 2em;
-            opacity: 0.4;
-            display: inline-block;
-            margin: 0 15px;
-        }
+      .symbol {
+        font-size: 2em;
+        opacity: 0.4;
+        display: inline-block;
+        margin: 0 15px;
+      }
 
-        .idle-message {
-            font-size: 1.8em;
-            color: #e0aaff;
-            opacity: 0.7;
-            margin: 60px 0;
-        }
+      .idle-message {
+        font-size: 1.8em;
+        color: #e0aaff;
+        opacity: 0.7;
+        margin: 60px 0;
+      }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.6;
         }
+        50% {
+          opacity: 1;
+        }
+      }
 
-        .pulsing {
-            animation: pulse 2s infinite;
-        }
+      .pulsing {
+        animation: pulse 2s infinite;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="stars" id="stars"></div>
 
     <div class="container">
-        <h1>🔮 Mystical Readings 🔮</h1>
-        <p class="subtitle"><span class="symbol">✦</span>Peer into the void<span class="symbol">✦</span></p>
+      <h1>🔮 Mystical Readings 🔮</h1>
+      <p class="subtitle">
+        <span class="symbol">✦</span>Peer into the void<span class="symbol"
+          >✦</span
+        >
+      </p>
 
-        <!-- IDLE STATE: No one detected -->
-        <div id="idleSection">
-            <p class="idle-message pulsing">Awaiting a seeker of truth...</p>
+      <!-- IDLE STATE: No one detected -->
+      <div id="idleSection">
+        <p class="idle-message pulsing">Awaiting a seeker of truth...</p>
+      </div>
+
+      <!-- STARING STATE: Recognized person, waiting for stare duration -->
+      <div id="staringSection" class="hidden">
+        <div class="crystal-ball-container">
+          <div class="crystal-ball"></div>
         </div>
 
-        <!-- STARING STATE: Recognized person, waiting for stare duration -->
-        <div id="staringSection" class="hidden">
-            <div class="crystal-ball-container">
-                <div class="crystal-ball"></div>
-            </div>
+        <p class="stare-prompt fade-in">
+          Gaze into the crystal sphere...<br />
+          <span style="font-size: 0.7em; opacity: 0.8"
+            >The cosmos shall reveal your destiny</span
+          >
+        </p>
 
-            <p class="stare-prompt fade-in">
-                Gaze into the crystal sphere...<br>
-                <span style="font-size: 0.7em; opacity: 0.8;">The cosmos shall reveal your destiny</span>
-            </p>
-
-            <div class="energy-rings">
-                <div class="ring"></div>
-                <div class="ring"></div>
-                <div class="ring"></div>
-                <div class="ring"></div>
-            </div>
-            <p class="energy-text" id="energyText">Channeling energy...</p>
+        <div class="energy-rings">
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
         </div>
+        <p class="energy-text" id="energyText">Channeling energy...</p>
+      </div>
 
-        <!-- CURSED STATE: Unknown person -->
-        <div id="cursedSection" class="hidden">
-            <div class="crystal-ball-container">
-                <div class="crystal-ball" style="background: radial-gradient(circle at 30% 30%, rgba(255, 0, 110, 0.3), rgba(114, 9, 183, 0.2), rgba(26, 0, 51, 0.6));"></div>
-            </div>
-            <p class="cursed-message fade-in">
-                ⚠️ The spirits do not know you ⚠️<br><br>
-                You must first take a cursed picture<br>
-                to unlock the mystical realm<br><br>
-                <a href="/">Enter the Portal</a>
-            </p>
+      <!-- CURSED STATE: Unknown person -->
+      <div id="cursedSection" class="hidden">
+        <div class="crystal-ball-container">
+          <div
+            class="crystal-ball"
+            style="
+              background: radial-gradient(
+                circle at 30% 30%,
+                rgba(255, 0, 110, 0.3),
+                rgba(114, 9, 183, 0.2),
+                rgba(26, 0, 51, 0.6)
+              );
+            "
+          ></div>
         </div>
+        <p class="cursed-message fade-in">
+          ⚠️ The spirits do not know you ⚠️<br /><br />
+          Only those who <em>die alone</em><br />
+          may glimpse their future...<br /><br />
+        </p>
+      </div>
 
-        <!-- LOADING STATE: Generating reading -->
-        <div id="loadingSection" class="hidden">
-            <div class="particles" id="particlesContainer"></div>
-            <p class="conjuring-text">✦ Conjuring your destiny ✦</p>
-        </div>
+      <!-- LOADING STATE: Generating reading -->
+      <div id="loadingSection" class="hidden">
+        <div class="particles" id="particlesContainer"></div>
+        <p class="conjuring-text">✦ Conjuring your destiny ✦</p>
+      </div>
 
-        <!-- READING STATE: Display the reading -->
-        <div id="readingSection" class="hidden">
-            <div class="reading-text fade-in">
-                <p id="readingText"></p>
-            </div>
+      <!-- READING STATE: Display the reading -->
+      <div id="readingSection" class="hidden">
+        <div class="reading-text fade-in">
+          <p id="readingText"></p>
         </div>
+      </div>
     </div>
 
     <script>
-        // Create starry background
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 150; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            starsContainer.appendChild(star);
+      // Create starry background
+      const starsContainer = document.getElementById("stars");
+      for (let i = 0; i < 150; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.animationDelay = Math.random() * 3 + "s";
+        starsContainer.appendChild(star);
+      }
+
+      // Elements
+      const idleSection = document.getElementById("idleSection");
+      const staringSection = document.getElementById("staringSection");
+      const cursedSection = document.getElementById("cursedSection");
+      const loadingSection = document.getElementById("loadingSection");
+      const readingSection = document.getElementById("readingSection");
+      const energyText = document.getElementById("energyText");
+      const readingTextEl = document.getElementById("readingText");
+      const particlesContainer = document.getElementById("particlesContainer");
+
+      // State
+      let currentPersonName = null;
+      let currentState = "idle"; // idle, staring, cursed, loading, reading
+      let pollInterval = null;
+      let readingTriggered = false;
+      const STARE_THRESHOLD = 4000; // 4 seconds in milliseconds
+
+      function hideAllSections() {
+        idleSection.classList.add("hidden");
+        staringSection.classList.add("hidden");
+        cursedSection.classList.add("hidden");
+        loadingSection.classList.add("hidden");
+        readingSection.classList.add("hidden");
+      }
+
+      function showIdleState() {
+        hideAllSections();
+        idleSection.classList.remove("hidden");
+        currentState = "idle";
+        currentPersonName = null;
+        readingTriggered = false;
+      }
+
+      function showStaringState(personName, stareDuration) {
+        if (currentState !== "staring") {
+          hideAllSections();
+          staringSection.classList.remove("hidden");
+          currentState = "staring";
         }
 
-        // Elements
-        const idleSection = document.getElementById('idleSection');
-        const staringSection = document.getElementById('staringSection');
-        const cursedSection = document.getElementById('cursedSection');
-        const loadingSection = document.getElementById('loadingSection');
-        const readingSection = document.getElementById('readingSection');
-        const energyText = document.getElementById('energyText');
-        const readingTextEl = document.getElementById('readingText');
-        const particlesContainer = document.getElementById('particlesContainer');
+        // Update mystical energy text based on progress
+        const progress = Math.min((stareDuration / STARE_THRESHOLD) * 100, 100);
 
-        // State
-        let currentPersonName = null;
-        let currentState = 'idle'; // idle, staring, cursed, loading, reading
-        let pollInterval = null;
-        let readingTriggered = false;
-        const STARE_THRESHOLD = 4000; // 4 seconds in milliseconds
-
-        function hideAllSections() {
-            idleSection.classList.add('hidden');
-            staringSection.classList.add('hidden');
-            cursedSection.classList.add('hidden');
-            loadingSection.classList.add('hidden');
-            readingSection.classList.add('hidden');
+        if (progress < 25) {
+          energyText.textContent = "Your presence awakens the mystic forces...";
+        } else if (progress < 50) {
+          energyText.textContent = "The veil between worlds grows thin...";
+        } else if (progress < 75) {
+          energyText.textContent = "Ancient powers stir in the darkness...";
+        } else if (progress < 100) {
+          energyText.textContent = "Your destiny crystallizes before us...";
+        } else {
+          energyText.textContent = "The ritual is complete...";
         }
 
-        function showIdleState() {
+        // Auto-trigger reading when threshold reached
+        if (stareDuration >= STARE_THRESHOLD && !readingTriggered) {
+          readingTriggered = true;
+          triggerReading(personName);
+        }
+      }
+
+      function showCursedState() {
+        if (currentState !== "cursed") {
+          hideAllSections();
+          cursedSection.classList.remove("hidden");
+          currentState = "cursed";
+        }
+      }
+
+      async function triggerReading(personName) {
+        hideAllSections();
+        loadingSection.classList.remove("hidden");
+        currentState = "loading";
+
+        // Create mystical particles
+        particlesContainer.innerHTML = "";
+        for (let i = 0; i < 20; i++) {
+          const particle = document.createElement("div");
+          particle.className = "particle";
+          particle.style.left = Math.random() * 280 + 10 + "px";
+          particle.style.animationDelay = Math.random() * 2 + "s";
+          particlesContainer.appendChild(particle);
+        }
+
+        try {
+          const response = await fetch("/api/readings/request", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ personName }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Show reading (name is revealed here by Claude in the reading text)
             hideAllSections();
-            idleSection.classList.remove('hidden');
-            currentState = 'idle';
-            currentPersonName = null;
-            readingTriggered = false;
+            readingTextEl.textContent = data.readingText;
+            readingSection.classList.remove("hidden");
+            currentState = "reading";
+
+            // Reset to idle after 20 seconds
+            setTimeout(() => {
+              showIdleState();
+            }, 20000);
+          } else {
+            throw new Error(data.error || "Failed to get reading");
+          }
+        } catch (error) {
+          console.error("Error getting reading:", error);
+          // On error, show idle after 3 seconds
+          setTimeout(() => {
+            showIdleState();
+          }, 3000);
+        }
+      }
+
+      // Poll for face recognition
+      async function checkForRecognition() {
+        // Don't poll while loading or showing reading
+        if (currentState === "loading" || currentState === "reading") {
+          return;
         }
 
-        function showStaringState(personName, stareDuration) {
-            if (currentState !== 'staring') {
-                hideAllSections();
-                staringSection.classList.remove('hidden');
-                currentState = 'staring';
-            }
+        try {
+          const response = await fetch("/api/recognition/current");
+          const data = await response.json();
 
-            // Update mystical energy text based on progress
-            const progress = Math.min((stareDuration / STARE_THRESHOLD) * 100, 100);
-
-            if (progress < 25) {
-                energyText.textContent = 'Your presence awakens the mystic forces...';
-            } else if (progress < 50) {
-                energyText.textContent = 'The veil between worlds grows thin...';
-            } else if (progress < 75) {
-                energyText.textContent = 'Ancient powers stir in the darkness...';
-            } else if (progress < 100) {
-                energyText.textContent = 'Your destiny crystallizes before us...';
-            } else {
-                energyText.textContent = 'The ritual is complete...';
+          if (data.recognized && data.personName !== "Unknown") {
+            // Recognized person - show staring state
+            currentPersonName = data.personName;
+            showStaringState(data.personName, data.stareDuration || 0);
+          } else if (data.recognized && data.personName === "Unknown") {
+            // Unknown person - show cursed message
+            currentPersonName = "Unknown";
+            showCursedState();
+          } else {
+            // No one detected
+            if (currentState !== "idle") {
+              showIdleState();
             }
-
-            // Auto-trigger reading when threshold reached
-            if (stareDuration >= STARE_THRESHOLD && !readingTriggered) {
-                readingTriggered = true;
-                triggerReading(personName);
-            }
+          }
+        } catch (error) {
+          console.error("Error checking recognition:", error);
         }
+      }
 
-        function showCursedState() {
-            if (currentState !== 'cursed') {
-                hideAllSections();
-                cursedSection.classList.remove('hidden');
-                currentState = 'cursed';
-            }
-        }
-
-        async function triggerReading(personName) {
-            hideAllSections();
-            loadingSection.classList.remove('hidden');
-            currentState = 'loading';
-
-            // Create mystical particles
-            particlesContainer.innerHTML = '';
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 280 + 10 + 'px';
-                particle.style.animationDelay = Math.random() * 2 + 's';
-                particlesContainer.appendChild(particle);
-            }
-
-            try {
-                const response = await fetch('/api/readings/request', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ personName })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Show reading (name is revealed here by Claude in the reading text)
-                    hideAllSections();
-                    readingTextEl.textContent = data.readingText;
-                    readingSection.classList.remove('hidden');
-                    currentState = 'reading';
-
-                    // Reset to idle after 20 seconds
-                    setTimeout(() => {
-                        showIdleState();
-                    }, 20000);
-                } else {
-                    throw new Error(data.error || 'Failed to get reading');
-                }
-            } catch (error) {
-                console.error('Error getting reading:', error);
-                // On error, show idle after 3 seconds
-                setTimeout(() => {
-                    showIdleState();
-                }, 3000);
-            }
-        }
-
-        // Poll for face recognition
-        async function checkForRecognition() {
-            // Don't poll while loading or showing reading
-            if (currentState === 'loading' || currentState === 'reading') {
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/recognition/current');
-                const data = await response.json();
-
-                if (data.recognized && data.personName !== 'Unknown') {
-                    // Recognized person - show staring state
-                    currentPersonName = data.personName;
-                    showStaringState(data.personName, data.stareDuration || 0);
-                } else if (data.recognized && data.personName === 'Unknown') {
-                    // Unknown person - show cursed message
-                    currentPersonName = 'Unknown';
-                    showCursedState();
-                } else {
-                    // No one detected
-                    if (currentState !== 'idle') {
-                        showIdleState();
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking recognition:', error);
-            }
-        }
-
-        // Start polling every 500ms for smooth progress bar updates
-        pollInterval = setInterval(checkForRecognition, 500);
-        checkForRecognition(); // Check immediately on load
+      // Start polling every 500ms for smooth progress bar updates
+      pollInterval = setInterval(checkForRecognition, 500);
+      checkForRecognition(); // Check immediately on load
     </script>
-</body>
+  </body>
 </html>

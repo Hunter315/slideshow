@@ -1,669 +1,692 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎃 Halloween Slideshow</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🪦 The Graveyard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            background: #000;
-            overflow: hidden;
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #fff;
-        }
+      body {
+        background: #000;
+        overflow: hidden;
+        font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, sans-serif;
+        color: #fff;
+      }
 
-        .slideshow-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      .slideshow-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
+      .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        padding: 60px 40px;
+      }
+
+      .slide.active {
+        opacity: 1;
+      }
+
+      .slide-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-height: 100%;
+        width: 100%;
+      }
+
+      .slide img {
+        max-width: 95%;
+        max-height: 85vh;
+        object-fit: contain;
+        box-shadow: 0 20px 60px rgba(255, 107, 0, 0.6),
+          0 0 40px rgba(0, 0, 0, 0.8);
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 2px solid rgba(255, 107, 0, 0.3);
+      }
+
+      .photo-caption {
+        text-align: center;
+        max-width: 90%;
+        animation: fadeInUp 0.8s ease-out 0.3s both;
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        padding: 12px 24px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .caption-text {
+        font-size: 1.4rem;
+        font-weight: 400;
+        line-height: 1.5;
+        margin-bottom: 8px;
+        font-style: italic;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        color: #ff9500;
+      }
+
+      .caption-author {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ff6b00;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8),
+          0 0 20px rgba(255, 107, 0, 0.5);
+      }
+
+      /* Admin Controls Overlay */
+      .admin-overlay {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 107, 0, 0.3);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        z-index: 100;
+        min-width: 280px;
+      }
+
+      .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid rgba(255, 107, 0, 0.2);
+      }
+
+      .admin-title {
+        color: #ff9500;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .close-btn {
+        background: rgba(255, 107, 0, 0.2);
+        border: none;
+        color: #ff9500;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+
+      .close-btn:hover {
+        background: rgba(255, 107, 0, 0.3);
+      }
+
+      .control-group {
+        margin-bottom: 16px;
+      }
+
+      .control-label {
+        color: #ff9500;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .speed-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .speed-btn {
+        padding: 10px;
+        background: rgba(255, 107, 0, 0.15);
+        border: 2px solid rgba(255, 107, 0, 0.3);
+        color: #ff9500;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+      }
+
+      .speed-btn:hover {
+        background: rgba(255, 107, 0, 0.25);
+        border-color: #ff6b00;
+      }
+
+      .speed-btn.active {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
+        color: #000;
+        border-color: #ff6b00;
+      }
+
+      .nav-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+      }
+
+      .nav-btn {
+        padding: 12px;
+        background: rgba(255, 107, 0, 0.15);
+        border: 2px solid rgba(255, 107, 0, 0.3);
+        color: #ff9500;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 107, 0, 0.25);
+        border-color: #ff6b00;
+        transform: translateY(-2px);
+      }
+
+      .photo-counter {
+        background: rgba(255, 107, 0, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        color: #ff9500;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      /* Toggle Button (when collapsed) */
+      .admin-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 107, 0, 0.3);
+        color: #ff9500;
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        display: none;
+      }
+
+      .admin-toggle:hover {
+        background: rgba(255, 107, 0, 0.2);
+      }
+
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #ff9500;
+      }
+
+      .spinner {
+        border: 4px solid rgba(255, 107, 0, 0.2);
+        border-top: 4px solid #ff6b00;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .status-indicator {
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(16, 185, 129, 0.95);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        display: none;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        z-index: 99;
+      }
+
+      .status-indicator.show {
+        display: block;
+        animation: slideDown 0.4s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      .error-message {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
         .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            padding: 60px 40px;
-        }
-
-        .slide.active {
-            opacity: 1;
-        }
-
-        .slide-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-height: 100%;
-            width: 100%;
+          padding: 40px 20px;
         }
 
         .slide img {
-            max-width: 95%;
-            max-height: 85vh;
-            object-fit: contain;
-            box-shadow: 0 20px 60px rgba(255, 107, 0, 0.6), 0 0 40px rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 2px solid rgba(255, 107, 0, 0.3);
-        }
-
-        .photo-caption {
-            text-align: center;
-            max-width: 90%;
-            animation: fadeInUp 0.8s ease-out 0.3s both;
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 12px 24px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+          max-height: 60vh;
         }
 
         .caption-text {
-            font-size: 1.4rem;
-            font-weight: 400;
-            line-height: 1.5;
-            margin-bottom: 8px;
-            font-style: italic;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-            color: #ff9500;
+          font-size: 1.3rem;
         }
 
         .caption-author {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #ff6b00;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 107, 0, 0.5);
+          font-size: 1.1rem;
         }
 
-        /* Admin Controls Overlay */
         .admin-overlay {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 107, 0, 0.3);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            z-index: 100;
-            min-width: 280px;
+          top: auto;
+          bottom: 20px;
+          right: 20px;
+          left: 20px;
+          max-width: none;
         }
 
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid rgba(255, 107, 0, 0.2);
-        }
-
-        .admin-title {
-            color: #ff9500;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .close-btn {
-            background: rgba(255, 107, 0, 0.2);
-            border: none;
-            color: #ff9500;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 107, 0, 0.3);
-        }
-
-        .control-group {
-            margin-bottom: 16px;
-        }
-
-        .control-label {
-            color: #ff9500;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .speed-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .speed-btn {
-            padding: 10px;
-            background: rgba(255, 107, 0, 0.15);
-            border: 2px solid rgba(255, 107, 0, 0.3);
-            color: #ff9500;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .speed-btn:hover {
-            background: rgba(255, 107, 0, 0.25);
-            border-color: #ff6b00;
-        }
-
-        .speed-btn.active {
-            background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
-            color: #000;
-            border-color: #ff6b00;
-        }
-
-        .nav-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-        }
-
-        .nav-btn {
-            padding: 12px;
-            background: rgba(255, 107, 0, 0.15);
-            border: 2px solid rgba(255, 107, 0, 0.3);
-            color: #ff9500;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 107, 0, 0.25);
-            border-color: #ff6b00;
-            transform: translateY(-2px);
-        }
-
-        .photo-counter {
-            background: rgba(255, 107, 0, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            color: #ff9500;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        /* Toggle Button (when collapsed) */
         .admin-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 107, 0, 0.3);
-            color: #ff9500;
-            padding: 12px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            display: none;
+          top: auto;
+          bottom: 20px;
+          right: 20px;
         }
-
-        .admin-toggle:hover {
-            background: rgba(255, 107, 0, 0.2);
-        }
-
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #ff9500;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 107, 0, 0.2);
-            border-top: 4px solid #ff6b00;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .status-indicator {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(16, 185, 129, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            display: none;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-            z-index: 99;
-        }
-
-        .status-indicator.show {
-            display: block;
-            animation: slideDown 0.4s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        .error-message {
-            color: #ff6b00;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .slide {
-                padding: 40px 20px;
-            }
-
-            .slide img {
-                max-height: 60vh;
-            }
-
-            .caption-text {
-                font-size: 1.3rem;
-            }
-
-            .caption-author {
-                font-size: 1.1rem;
-            }
-
-            .admin-overlay {
-                top: auto;
-                bottom: 20px;
-                right: 20px;
-                left: 20px;
-                max-width: none;
-            }
-
-            .admin-toggle {
-                top: auto;
-                bottom: 20px;
-                right: 20px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="slideshow-container" id="slideshowContainer"></div>
 
     <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p>Loading spooky photos...</p>
+      <div class="spinner"></div>
+      <p>Summoning the departed souls...</p>
     </div>
 
     <!-- Admin Controls -->
-    <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">⚙️ Controls</button>
+    <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">
+      ⚙️ Controls
+    </button>
 
     <div class="admin-overlay" id="adminOverlay">
-        <div class="admin-header">
-            <span class="admin-title">🎃 Controls</span>
-            <button class="close-btn" onclick="toggleAdmin()">×</button>
-        </div>
+      <div class="admin-header">
+        <span class="admin-title">🎃 Controls</span>
+        <button class="close-btn" onclick="toggleAdmin()">×</button>
+      </div>
 
-        <div class="photo-counter">
-            <span id="currentIndex">1</span> / <span id="totalPhotos">0</span>
-        </div>
+      <div class="photo-counter">
+        <span id="currentIndex">1</span> / <span id="totalPhotos">0</span>
+      </div>
 
-        <div class="control-group">
-            <label class="control-label">Slide Speed</label>
-            <div class="speed-buttons">
-                <button class="speed-btn" onclick="setSpeed(3000)">Fast<br>3s</button>
-                <button class="speed-btn active" onclick="setSpeed(5000)">Normal<br>5s</button>
-                <button class="speed-btn" onclick="setSpeed(8000)">Slow<br>8s</button>
-            </div>
+      <div class="control-group">
+        <label class="control-label">Slide Speed</label>
+        <div class="speed-buttons">
+          <button class="speed-btn" onclick="setSpeed(3000)">
+            Fast<br />3s
+          </button>
+          <button class="speed-btn active" onclick="setSpeed(5000)">
+            Normal<br />5s
+          </button>
+          <button class="speed-btn" onclick="setSpeed(8000)">
+            Slow<br />8s
+          </button>
         </div>
+      </div>
 
-        <div class="control-group">
-            <label class="control-label">Navigation</label>
-            <div class="nav-buttons">
-                <button class="nav-btn" onclick="previousPhoto()">⬅️ Prev</button>
-                <button class="nav-btn" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
-                <button class="nav-btn" onclick="nextPhoto()">Next ➡️</button>
-            </div>
+      <div class="control-group">
+        <label class="control-label">Navigation</label>
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="previousPhoto()">⬅️ Prev</button>
+          <button class="nav-btn" id="playPauseBtn" onclick="togglePlayPause()">
+            ⏸ Pause
+          </button>
+          <button class="nav-btn" onclick="nextPhoto()">Next ➡️</button>
         </div>
+      </div>
 
-        <div class="control-group">
-            <button class="nav-btn" onclick="refreshPhotos()" style="width: 100%;">🔄 Refresh Photos</button>
-        </div>
+      <div class="control-group">
+        <button class="nav-btn" onclick="refreshPhotos()" style="width: 100%">
+          🔄 Refresh Photos
+        </button>
+      </div>
     </div>
 
     <div class="status-indicator" id="statusIndicator">
-        New photos available!
+      New photos available!
     </div>
 
     <script>
-        const API_URL = window.location.origin;
-        let SLIDE_DURATION = 5000; // Default 5 seconds
-        const REFRESH_INTERVAL = 30000; // Check for new photos every 30 seconds
+      const API_URL = window.location.origin;
+      let SLIDE_DURATION = 5000; // Default 5 seconds
+      const REFRESH_INTERVAL = 30000; // Check for new photos every 30 seconds
 
-        let photos = [];
-        let currentIndex = 0;
-        let isPlaying = true;
-        let slideInterval = null;
-        let refreshInterval = null;
-        let adminVisible = true;
+      let photos = [];
+      let currentIndex = 0;
+      let isPlaying = true;
+      let slideInterval = null;
+      let refreshInterval = null;
+      let adminVisible = true;
 
-        async function loadPhotos(showStatus = false) {
-            try {
-                const response = await fetch(`${API_URL}/api/photos`);
-                const data = await response.json();
-                const newPhotos = data.photos || [];
+      async function loadPhotos(showStatus = false) {
+        try {
+          const response = await fetch(`${API_URL}/api/photos`);
+          const data = await response.json();
+          const newPhotos = data.photos || [];
 
-                if (showStatus && newPhotos.length > photos.length) {
-                    // Find the new photos that were added
-                    const existingIds = new Set(photos.map(p => p.photoId));
-                    const addedPhotos = newPhotos.filter(p => !existingIds.has(p.photoId));
+          if (showStatus && newPhotos.length > photos.length) {
+            // Find the new photos that were added
+            const existingIds = new Set(photos.map((p) => p.photoId));
+            const addedPhotos = newPhotos.filter(
+              (p) => !existingIds.has(p.photoId)
+            );
 
-                    // Show toast for each new photo with guest name
-                    addedPhotos.forEach(photo => {
-                        const guestName = photo.guestName || 'Someone';
-                        showStatusIndicator(`🎃 ${guestName} added a photo!`);
-                    });
-                }
-
-                if (newPhotos.length > 0) {
-                    photos = newPhotos;
-                    if (currentIndex >= photos.length) {
-                        currentIndex = 0;
-                    }
-                    displayPhotos();
-                } else {
-                    showError('No photos yet. Waiting for spooky uploads...');
-                }
-            } catch (error) {
-                console.error('Error loading photos:', error);
-                showError('Failed to load photos. Retrying...');
-                setTimeout(() => loadPhotos(), 5000);
-            }
-        }
-
-        function displayPhotos() {
-            const container = document.getElementById('slideshowContainer');
-            const loading = document.getElementById('loading');
-
-            loading.style.display = 'none';
-
-            // Clear existing slides
-            container.innerHTML = '';
-
-            // Create slides for all photos
-            photos.forEach((photo, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'slide';
-                if (index === currentIndex) {
-                    slide.classList.add('active');
-                }
-
-                const slideContent = document.createElement('div');
-                slideContent.className = 'slide-content';
-
-                const img = document.createElement('img');
-                img.src = `${API_URL}${photo.url}`;
-                img.alt = photo.filename;
-                img.onerror = () => {
-                    console.error('Failed to load image:', photo.url);
-                    setTimeout(() => loadPhotos(true), 1000);
-                };
-
-                slideContent.appendChild(img);
-
-                // Add caption if exists
-                if (photo.caption || photo.guestName) {
-                    const captionDiv = document.createElement('div');
-                    captionDiv.className = 'photo-caption';
-
-                    if (photo.caption) {
-                        const captionText = document.createElement('div');
-                        captionText.className = 'caption-text';
-                        captionText.textContent = `"${photo.caption}"`;
-                        captionDiv.appendChild(captionText);
-                    }
-
-                    if (photo.guestName) {
-                        const captionAuthor = document.createElement('div');
-                        captionAuthor.className = 'caption-author';
-                        captionAuthor.textContent = `— ${photo.guestName}`;
-                        captionDiv.appendChild(captionAuthor);
-                    }
-
-                    slideContent.appendChild(captionDiv);
-                }
-
-                slide.appendChild(slideContent);
-                container.appendChild(slide);
+            // Show toast for each new photo with guest name
+            addedPhotos.forEach((photo) => {
+              const guestName = photo.guestName || "Someone";
+              showStatusIndicator(`🎃 ${guestName} added a photo!`);
             });
+          }
 
-            updatePhotoCount();
-
-            // Start or restart slideshow
-            if (isPlaying) {
-                startSlideshow();
+          if (newPhotos.length > 0) {
+            photos = newPhotos;
+            if (currentIndex >= photos.length) {
+              currentIndex = 0;
             }
+            displayPhotos();
+          } else {
+            showError(
+              "The Graveyard is empty... Waiting for souls to cross over..."
+            );
+          }
+        } catch (error) {
+          console.error("Error loading photos:", error);
+          showError("Failed to load photos. Retrying...");
+          setTimeout(() => loadPhotos(), 5000);
         }
+      }
 
-        function showSlide(index) {
-            const slides = document.querySelectorAll('.slide');
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-            currentIndex = index;
-            updatePhotoCount();
-        }
+      function displayPhotos() {
+        const container = document.getElementById("slideshowContainer");
+        const loading = document.getElementById("loading");
 
-        function nextPhoto() {
-            const nextIndex = (currentIndex + 1) % photos.length;
-            showSlide(nextIndex);
-        }
+        loading.style.display = "none";
 
-        function previousPhoto() {
-            const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
-            showSlide(prevIndex);
-        }
+        // Clear existing slides
+        container.innerHTML = "";
 
-        function startSlideshow() {
-            stopSlideshow();
-            slideInterval = setInterval(nextPhoto, SLIDE_DURATION);
-        }
+        // Create slides for all photos
+        photos.forEach((photo, index) => {
+          const slide = document.createElement("div");
+          slide.className = "slide";
+          if (index === currentIndex) {
+            slide.classList.add("active");
+          }
 
-        function stopSlideshow() {
-            if (slideInterval) {
-                clearInterval(slideInterval);
-                slideInterval = null;
+          const slideContent = document.createElement("div");
+          slideContent.className = "slide-content";
+
+          const img = document.createElement("img");
+          img.src = `${API_URL}${photo.url}`;
+          img.alt = photo.filename;
+          img.onerror = () => {
+            console.error("Failed to load image:", photo.url);
+            setTimeout(() => loadPhotos(true), 1000);
+          };
+
+          slideContent.appendChild(img);
+
+          // Add caption if exists
+          if (photo.caption || photo.guestName) {
+            const captionDiv = document.createElement("div");
+            captionDiv.className = "photo-caption";
+
+            if (photo.caption) {
+              const captionText = document.createElement("div");
+              captionText.className = "caption-text";
+              captionText.textContent = `"${photo.caption}"`;
+              captionDiv.appendChild(captionText);
             }
-        }
 
-        function togglePlayPause() {
-            isPlaying = !isPlaying;
-            const btn = document.getElementById('playPauseBtn');
-
-            if (isPlaying) {
-                btn.textContent = '⏸ Pause';
-                startSlideshow();
-            } else {
-                btn.textContent = '▶ Play';
-                stopSlideshow();
+            if (photo.guestName) {
+              const captionAuthor = document.createElement("div");
+              captionAuthor.className = "caption-author";
+              captionAuthor.textContent = `— ${photo.guestName}`;
+              captionDiv.appendChild(captionAuthor);
             }
+
+            slideContent.appendChild(captionDiv);
+          }
+
+          slide.appendChild(slideContent);
+          container.appendChild(slide);
+        });
+
+        updatePhotoCount();
+
+        // Start or restart slideshow
+        if (isPlaying) {
+          startSlideshow();
         }
+      }
 
-        function setSpeed(duration) {
-            SLIDE_DURATION = duration;
+      function showSlide(index) {
+        const slides = document.querySelectorAll(".slide");
+        slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === index);
+        });
+        currentIndex = index;
+        updatePhotoCount();
+      }
 
-            // Update active button
-            document.querySelectorAll('.speed-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+      function nextPhoto() {
+        const nextIndex = (currentIndex + 1) % photos.length;
+        showSlide(nextIndex);
+      }
 
-            // Restart slideshow with new speed
-            if (isPlaying) {
-                startSlideshow();
-            }
+      function previousPhoto() {
+        const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
+        showSlide(prevIndex);
+      }
+
+      function startSlideshow() {
+        stopSlideshow();
+        slideInterval = setInterval(nextPhoto, SLIDE_DURATION);
+      }
+
+      function stopSlideshow() {
+        if (slideInterval) {
+          clearInterval(slideInterval);
+          slideInterval = null;
         }
+      }
 
-        function toggleAdmin() {
-            adminVisible = !adminVisible;
-            const overlay = document.getElementById('adminOverlay');
-            const toggle = document.getElementById('adminToggle');
+      function togglePlayPause() {
+        isPlaying = !isPlaying;
+        const btn = document.getElementById("playPauseBtn");
 
-            if (adminVisible) {
-                overlay.style.display = 'block';
-                toggle.style.display = 'none';
-            } else {
-                overlay.style.display = 'none';
-                toggle.style.display = 'block';
-            }
+        if (isPlaying) {
+          btn.textContent = "⏸ Pause";
+          startSlideshow();
+        } else {
+          btn.textContent = "▶ Play";
+          stopSlideshow();
         }
+      }
 
-        function updatePhotoCount() {
-            document.getElementById('currentIndex').textContent = currentIndex + 1;
-            document.getElementById('totalPhotos').textContent = photos.length;
+      function setSpeed(duration) {
+        SLIDE_DURATION = duration;
+
+        // Update active button
+        document.querySelectorAll(".speed-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Restart slideshow with new speed
+        if (isPlaying) {
+          startSlideshow();
         }
+      }
 
-        async function refreshPhotos() {
-            await loadPhotos(true);
+      function toggleAdmin() {
+        adminVisible = !adminVisible;
+        const overlay = document.getElementById("adminOverlay");
+        const toggle = document.getElementById("adminToggle");
+
+        if (adminVisible) {
+          overlay.style.display = "block";
+          toggle.style.display = "none";
+        } else {
+          overlay.style.display = "none";
+          toggle.style.display = "block";
         }
+      }
 
-        function showStatusIndicator(message = 'New photos available!') {
-            const indicator = document.getElementById('statusIndicator');
-            indicator.textContent = message;
-            indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 3000);
-        }
+      function updatePhotoCount() {
+        document.getElementById("currentIndex").textContent = currentIndex + 1;
+        document.getElementById("totalPhotos").textContent = photos.length;
+      }
 
-        function showError(message) {
-            const container = document.getElementById('slideshowContainer');
-            const loading = document.getElementById('loading');
+      async function refreshPhotos() {
+        await loadPhotos(true);
+      }
 
-            loading.innerHTML = `
+      function showStatusIndicator(message = "New photos available!") {
+        const indicator = document.getElementById("statusIndicator");
+        indicator.textContent = message;
+        indicator.classList.add("show");
+        setTimeout(() => {
+          indicator.classList.remove("show");
+        }, 3000);
+      }
+
+      function showError(message) {
+        const container = document.getElementById("slideshowContainer");
+        const loading = document.getElementById("loading");
+
+        loading.innerHTML = `
                 <div class="error-message">${message}</div>
             `;
+      }
+
+      // Keyboard controls
+      document.addEventListener("keydown", (e) => {
+        switch (e.key) {
+          case "ArrowLeft":
+            previousPhoto();
+            break;
+          case "ArrowRight":
+            nextPhoto();
+            break;
+          case " ":
+            togglePlayPause();
+            e.preventDefault();
+            break;
+          case "r":
+          case "R":
+            refreshPhotos();
+            break;
+          case "c":
+          case "C":
+            toggleAdmin();
+            break;
+          case "f":
+          case "F":
+            toggleFullscreen();
+            break;
         }
+      });
 
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    previousPhoto();
-                    break;
-                case 'ArrowRight':
-                    nextPhoto();
-                    break;
-                case ' ':
-                    togglePlayPause();
-                    e.preventDefault();
-                    break;
-                case 'r':
-                case 'R':
-                    refreshPhotos();
-                    break;
-                case 'c':
-                case 'C':
-                    toggleAdmin();
-                    break;
-                case 'f':
-                case 'F':
-                    toggleFullscreen();
-                    break;
-            }
-        });
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen not supported:', err);
-                });
-            } else {
-                document.exitFullscreen();
-            }
+      // Fullscreen toggle
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch((err) => {
+            console.log("Fullscreen not supported:", err);
+          });
+        } else {
+          document.exitFullscreen();
         }
+      }
 
-        // Initialize
-        loadPhotos();
+      // Initialize
+      loadPhotos();
 
-        // Auto-refresh photos periodically
-        refreshInterval = setInterval(() => {
-            loadPhotos(true);
-        }, REFRESH_INTERVAL);
+      // Auto-refresh photos periodically
+      refreshInterval = setInterval(() => {
+        loadPhotos(true);
+      }, REFRESH_INTERVAL);
 
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            stopSlideshow();
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        });
-
-        // Hide admin controls after 10 seconds on mobile
-        if (window.innerWidth <= 768) {
-            setTimeout(() => {
-                if (adminVisible) {
-                    toggleAdmin();
-                }
-            }, 10000);
+      // Cleanup on page unload
+      window.addEventListener("beforeunload", () => {
+        stopSlideshow();
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
         }
+      });
+
+      // Hide admin controls after 10 seconds on mobile
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          if (adminVisible) {
+            toggleAdmin();
+          }
+        }, 10000);
+      }
     </script>
-</body>
+  </body>
 </html>
