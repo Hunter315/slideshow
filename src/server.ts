@@ -34,6 +34,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'change-me-please';
+const FACE_RECOGNITION_API_URL = 'http://localhost:5000';
 
 // Get local IP address
 function getLocalIpAddress(): string {
@@ -70,6 +71,33 @@ function getLocalIpAddress(): string {
 }
 
 const LOCAL_IP = getLocalIpAddress();
+
+// Helper function to enroll a face in the recognition system
+async function enrollFace(imagePath: string, personName: string): Promise<void> {
+  try {
+    const response = await fetch(`${FACE_RECOGNITION_API_URL}/enroll`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_path: imagePath,
+        person_name: personName,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log(`✅ Enrolled ${personName} for face recognition`);
+    } else {
+      console.error(`❌ Face enrollment failed for ${personName}:`, result.error);
+    }
+  } catch (error: any) {
+    // Don't fail the upload if face recognition service is down
+    console.error(`⚠️  Face recognition service unavailable:`, error.message);
+  }
+}
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -144,7 +172,7 @@ app.get('/api/server-info', (req: Request, res: Response) => {
 });
 
 // Upload photo
-app.post('/api/photos', upload.single('photo'), (req: Request, res: Response) => {
+app.post('/api/photos', upload.single('photo'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -164,6 +192,14 @@ app.post('/api/photos', upload.single('photo'), (req: Request, res: Response) =>
     };
 
     insertPhoto.run(photoData);
+
+    // Trigger face enrollment if guestName is provided
+    if (guestName) {
+      const absolutePath = path.join(UPLOADS_DIR, req.file.filename);
+      enrollFace(absolutePath, guestName).catch(err => {
+        console.error(`Failed to enroll ${guestName}:`, err.message);
+      });
+    }
 
     res.json({
       message: 'Photo uploaded successfully',
