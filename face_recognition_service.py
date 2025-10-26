@@ -12,8 +12,6 @@ import requests
 import json
 from pathlib import Path
 import numpy as np
-from flask import Flask, request, jsonify
-import threading
 
 # Configuration
 CAMERA_INDEX = 0  # Use video0 with V4L2 backend
@@ -22,7 +20,6 @@ API_URL = "http://localhost:3000/api"
 RECOGNITION_THRESHOLD = 0.6  # Lower = stricter matching
 FRAME_SKIP = 2  # Process every Nth frame for better performance
 SCALE_FACTOR = 0.5  # Downscale frames for faster processing
-ENROLLMENT_PORT = 5000  # HTTP server port for enrollment API
 
 class FaceRecognitionService:
     def __init__(self):
@@ -78,7 +75,7 @@ class FaceRecognitionService:
             person_name: Name to associate with this face
 
         Returns:
-            dict: Result with success status and message
+            bool: True if enrollment succeeded, False otherwise
         """
         try:
             image = face_recognition.load_image_file(image_path)
@@ -86,17 +83,17 @@ class FaceRecognitionService:
 
             if len(encodings) == 0:
                 print(f"❌ No face found in {image_path}")
-                return {"success": False, "error": "No face detected in image"}
+                return False
 
             # Use the first face found
             self.known_face_encodings.append(encodings[0])
             self.known_face_names.append(person_name)
             self.save_known_faces()
             print(f"✅ Enrolled {person_name} (total: {len(set(self.known_face_names))} people)")
-            return {"success": True, "message": f"Enrolled {person_name}"}
+            return True
         except Exception as e:
             print(f"❌ Error enrolling {person_name}: {e}")
-            return {"success": False, "error": str(e)}
+            return False
 
     def recognize_faces(self, frame):
         """
@@ -236,55 +233,13 @@ class FaceRecognitionService:
             video_capture.release()
             cv2.destroyAllWindows()
 
-def create_enrollment_api(service):
-    """Create Flask API for enrolling faces"""
-    app = Flask(__name__)
-
-    @app.route('/health', methods=['GET'])
-    def health():
-        """Health check endpoint"""
-        return jsonify({'status': 'ok', 'enrolled_people': len(set(service.known_face_names))})
-
-    @app.route('/enroll', methods=['POST'])
-    def enroll():
-        """
-        Enroll a face from an uploaded photo
-        Expected JSON: { "image_path": "/path/to/photo.jpg", "person_name": "John" }
-        """
-        data = request.get_json()
-
-        if not data or 'image_path' not in data or 'person_name' not in data:
-            return jsonify({'error': 'image_path and person_name required'}), 400
-
-        image_path = data['image_path']
-        person_name = data['person_name']
-
-        # Validate file exists
-        if not Path(image_path).exists():
-            return jsonify({'error': f'Image not found: {image_path}'}), 404
-
-        # Enroll the face
-        result = service.enroll_face(image_path, person_name)
-
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify(result), 400
-
-    return app
-
 if __name__ == "__main__":
     service = FaceRecognitionService()
 
-    # Start Flask API in a background thread
-    print(f"🌐 Starting enrollment API on port {ENROLLMENT_PORT}...")
-    api_app = create_enrollment_api(service)
-    api_thread = threading.Thread(
-        target=lambda: api_app.run(host='0.0.0.0', port=ENROLLMENT_PORT, debug=False, use_reloader=False),
-        daemon=True
-    )
-    api_thread.start()
-    print(f"✅ Enrollment API running at http://localhost:{ENROLLMENT_PORT}")
+    # Example: Enroll faces from a directory
+    # for image_path in Path("faces").glob("*.jpg"):
+    #     name = image_path.stem  # Use filename as name
+    #     service.enroll_face(str(image_path), name)
 
-    # Start recognition (blocks main thread)
+    # Start recognition
     service.run_camera()

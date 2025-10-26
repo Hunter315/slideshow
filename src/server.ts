@@ -7,6 +7,8 @@ import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import os from 'os';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import {
   insertPhoto,
   getActivePhotos,
@@ -34,7 +36,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'change-me-please';
-const FACE_RECOGNITION_API_URL = 'http://localhost:5000';
 
 // Get local IP address
 function getLocalIpAddress(): string {
@@ -72,32 +73,7 @@ function getLocalIpAddress(): string {
 
 const LOCAL_IP = getLocalIpAddress();
 
-// Helper function to enroll a face in the recognition system
-async function enrollFace(imagePath: string, personName: string): Promise<void> {
-  try {
-    const response = await fetch(`${FACE_RECOGNITION_API_URL}/enroll`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image_path: imagePath,
-        person_name: personName,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      console.log(`✅ Enrolled ${personName} for face recognition`);
-    } else {
-      console.error(`❌ Face enrollment failed for ${personName}:`, result.error);
-    }
-  } catch (error: any) {
-    // Don't fail the upload if face recognition service is down
-    console.error(`⚠️  Face recognition service unavailable:`, error.message);
-  }
-}
+const execAsync = promisify(exec);
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -172,7 +148,7 @@ app.get('/api/server-info', (req: Request, res: Response) => {
 });
 
 // Upload photo
-app.post('/api/photos', upload.single('photo'), async (req: Request, res: Response) => {
+app.post('/api/photos', upload.single('photo'), (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -192,14 +168,6 @@ app.post('/api/photos', upload.single('photo'), async (req: Request, res: Respon
     };
 
     insertPhoto.run(photoData);
-
-    // Trigger face enrollment if guestName is provided
-    if (guestName) {
-      const absolutePath = path.join(UPLOADS_DIR, req.file.filename);
-      enrollFace(absolutePath, guestName).catch(err => {
-        console.error(`Failed to enroll ${guestName}:`, err.message);
-      });
-    }
 
     res.json({
       message: 'Photo uploaded successfully',
@@ -500,6 +468,41 @@ app.post('/api/photo-processed', (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error storing processing results:', error);
     res.status(500).json({ error: 'Failed to store processing results' });
+  }
+});
+
+// Admin: Trigger face enrollment for all photos
+app.post('/api/admin/enroll-faces', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    console.log('🔄 Starting face enrollment...');
+
+    const scriptPath = path.join(__dirname, '..', 'enroll_faces.py');
+
+    // Check if Python script exists
+    if (!fs.existsSync(scriptPath)) {
+      return res.status(500).json({ error: 'Enrollment script not found' });
+    }
+
+    // Execute the Python enrollment script
+    const { stdout, stderr } = await execAsync(`python3 "${scriptPath}"`);
+
+    if (stderr && !stderr.includes('warning')) {
+      console.error('Enrollment stderr:', stderr);
+    }
+
+    console.log(stdout);
+
+    res.json({
+      success: true,
+      message: 'Face enrollment completed',
+      output: stdout
+    });
+  } catch (error: any) {
+    console.error('Error during face enrollment:', error);
+    res.status(500).json({
+      error: 'Failed to enroll faces',
+      details: error.message
+    });
   }
 });
 

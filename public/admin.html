@@ -179,6 +179,23 @@
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
         }
 
+        .enroll-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .enroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .enroll-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -441,6 +458,7 @@
 
         <div class="controls">
             <button class="refresh-btn" onclick="loadPhotos()">🔄 Refresh</button>
+            <button class="enroll-btn" onclick="enrollFaces()">🎭 Register Faces</button>
             <label style="color: #ff9500; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                 <input type="checkbox" id="showHiddenToggle" onchange="loadPhotos()" style="width: 18px; height: 18px; cursor: pointer;">
                 Show Hidden
@@ -707,6 +725,48 @@
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        async function enrollFaces() {
+            const enrollBtn = document.querySelector('.enroll-btn');
+
+            // Disable button to prevent multiple clicks
+            enrollBtn.disabled = true;
+            enrollBtn.textContent = '🔄 Registering...';
+
+            showMessage('Enrolling faces for recognition... This may take a minute.', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/enroll-faces`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': apiKey,
+                    },
+                });
+
+                if (response.status === 401) {
+                    showMessage('Invalid API key. Please login again.', 'error');
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('✅ Face enrollment completed! Check console for details.', 'success');
+                    console.log('Enrollment output:', data.output);
+                } else {
+                    showMessage(`❌ Enrollment failed: ${data.error}`, 'error');
+                    console.error('Enrollment error:', data);
+                }
+            } catch (error) {
+                console.error('Error enrolling faces:', error);
+                showMessage('❌ Failed to enroll faces. Make sure Python service is installed.', 'error');
+            } finally {
+                // Re-enable button
+                enrollBtn.disabled = false;
+                enrollBtn.textContent = '🎭 Register Faces';
+            }
         }
 
         // Auto-login if API key exists
